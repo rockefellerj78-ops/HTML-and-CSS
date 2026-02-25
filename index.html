@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <!-- Базовые мета-теги -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ЛР1: структура HTML-документа (HTML5) + подключение CSS">
+
+  <title>ЛР1 — Структура HTML5-документа</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 class="site-title">Основы клиентской разработки (HTML5 + CSS3)</h1>
+      <p class="site-subtitle">Лабораторная работа №1: каркас HTML-страницы</p>
+    </div>
+  </header>
+
+  <nav class="site-nav" aria-label="Основное меню">
+    <div class="container">
+      <a class="nav-link" href="#goal">Цель</a>
+      <a class="nav-link" href="#structure">Структура</a>
+      <a class="nav-link" href="#tags">Теги</a>
+      <a class="nav-link" href="#checklist">Чек-лист</a>
+    </div>
+  </nav>
+
+  <main class="site-main">
+    <div class="container">
+      <section id="goal" class="card">
+        <h2>Цель работы</h2>
+        <p>
+          Научиться создавать корректный HTML5-документ, правильно оформлять блок
+          <code>&lt;head&gt;</code> (мета-теги, заголовок страницы, подключение CSS) и
+          структурировать содержимое в <code>&lt;body&gt;</code> с помощью семантических элементов.
+        </p>
+      </section>
+
+      <section id="structure" class="card">
+        <h2>Структура страницы</h2>
+        <ul>
+          <li><strong>header</strong> — шапка сайта (название, подзаголовок)</li>
+          <li><strong>nav</strong> — меню (ссылки на разделы)</li>
+          <li><strong>main</strong> — основное содержимое</li>
+          <li><strong>footer</strong> — подвал (контакты/автор/год)</li>
+        </ul>
+        <p class="note">
+          Сейчас это один файл. В следующих лабораторных сюда легко добавятся новые страницы
+          (about.html, gallery.html и т.д.).
+        </p>
+      </section>
+
+      <section id="tags" class="card">
+        <h2>Какие теги использованы</h2>
+        <ol>
+          <li><code>&lt;!doctype html&gt;</code> — объявление HTML5</li>
+          <li><code>&lt;html lang="ru"&gt;</code> — язык документа</li>
+          <li><code>&lt;meta charset="utf-8"&gt;</code> — кодировка</li>
+          <li><code>&lt;meta name="viewport" ...&gt;</code> — корректная адаптивность</li>
+          <li><code>&lt;title&gt;</code> — заголовок вкладки браузера</li>
+          <li><code>&lt;link rel="stylesheet"&gt;</code> — подключение CSS</li>
+          <li><code>&lt;header&gt; &lt;nav&gt; &lt;main&gt; &lt;section&gt; &lt;footer&gt;</code> — семантические блоки</li>
+        </ol>
+      </section>
+
+      <section id="checklist" class="card">
+        <h2>Чек-лист перед сдачей</h2>
+        <ul class="checklist">
+          <li>✅ Документ открывается в браузере без ошибок</li>
+          <li>✅ Есть doctype и lang</li>
+          <li>✅ В head есть charset + title + viewport</li>
+          <li>✅ CSS подключен и реально влияет на страницу</li>
+          <li>✅ Есть базовая структура: header/nav/main/footer</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Владикавказ, 2026</p>
+    </div>
+  </footer>
+</body>
+</html>

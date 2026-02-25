@@ -1,0 +1,72 @@
+/* ЛР1: минимальные стили, чтобы было видно, что CSS подключен */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.site-header {
+  border-bottom: 1px solid #ddd;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 24px;
+}
+
+.site-subtitle {
+  margin: 6px 0 0;
+  color: #555;
+}
+
+.site-nav {
+  border-bottom: 1px solid #eee;
+}
+
+.nav-link {
+  display: inline-block;
+  margin-right: 12px;
+  padding: 10px 0;
+  text-decoration: none;
+  color: #0b57d0;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.site-main {
+  padding: 16px 0;
+}
+
+.card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.note {
+  color: #444;
+  font-style: italic;
+}
+
+.checklist {
+  padding-left: 18px;
+}
+
+.site-footer {
+  border-top: 1px solid #eee;
+  color: #666;
+}

@@ -25,8 +25,14 @@
       <a class="nav-link" href="#structure">Структура</a>
       <a class="nav-link" href="#tags">Теги</a>
       <a class="nav-link" href="#checklist">Чек-лист</a>
-      <a class="nav-link" href="#practice">Практика</a>
-      <a class="nav-link" href="#result">Результат</a>
+      <a class="nav-link" href="#headings-demo">Заголовки</a>
+      <a class="nav-link" href="#paragraphs-demo">Абзацы</a>
+      <a class="nav-link" href="#text-elements">Выделение</a>
+      <a class="nav-link" href="#lists-demo">Списки</a>
+      <a class="nav-link" href="#hr-demo">HR</a>
+      <a class="nav-link" href="#symbols-demo">Символы</a>
+      <a class="nav-link" href="#code-demo">Code/Pre</a>
+      <a class="nav-link" href="#marquee-demo">Marquee</a>
     </div>
   </nav>
 
@@ -68,62 +74,197 @@
         </ol>
       </section>
 
-      <section id="checklist" class="card">
-        <h2>Чек-лист перед сдачей</h2>
-        <ul class="checklist">
-          <li>Документ открывается в браузере без ошибок</li>
-          <li>Есть doctype и lang</li>
-          <li>В head есть charset + title + viewport</li>
-          <li>CSS подключен и реально влияет на страницу</li>
-          <li>Есть базовая структура: header / nav / main / footer</li>
+      <section id="headings-demo" class="card">
+        <h2>Заголовки и их иерархия</h2>
+        <p>
+          Заголовки показывают структуру документа. Чем меньше число в теге,
+          тем выше уровень заголовка.
+        </p>
+
+        <h1>Пример заголовка h1</h1>
+        <h2>Пример заголовка h2</h2>
+        <h3>Пример заголовка h3</h3>
+        <h4>Пример заголовка h4</h4>
+        <h5>Пример заголовка h5</h5>
+        <h6>Пример заголовка h6</h6>
+
+        <p class="note">
+          Обычно на странице делают один основной <code>&lt;h1&gt;</code>,
+          а ниже используют <code>&lt;h2&gt;</code>, <code>&lt;h3&gt;</code> и т.д.
+        </p>
+      </section>
+
+      <section id="paragraphs-demo" class="card">
+        <h2>Абзацы, перенос строки и пробелы</h2>
+        <p>
+          Тег <code>&lt;p&gt;</code> создаёт отдельный абзац. Это основной способ
+          разбивать большой текст на читаемые части.
+        </p>
+
+        <p>
+          Это первый абзац. Внутри абзаца браузер сам схлопывает несколько пробелов
+          в один обычный пробел.
+        </p>
+
+        <p>
+          Это второй абзац. Он отделён от первого не пустыми строками в коде,
+          а самим тегом <code>&lt;p&gt;</code>.
+        </p>
+
+        <p>
+          Иногда используют <code>&lt;br&gt;</code> для переноса строки внутри одного
+          абзаца.<br>
+          Например, здесь строка перенесена вручную.<br>
+          Но новый абзац через <code>&lt;br&gt;</code> обычно не делают.
+        </p>
+
+        <p>
+          Пример неразрывного пробела: HTML&nbsp;5, CSS&nbsp;3, 2026&nbsp;год.
+        </p>
+      </section>
+
+      <section id="text-elements" class="card">
+        <h2>Смысловое выделение текста</h2>
+        <p>
+          Тег <strong>strong</strong> используется для важного текста,
+          а тег <em>em</em> — для смыслового акцента.
+        </p>
+
+        <p>
+          Пример: <strong>HTML задаёт структуру страницы</strong>,
+          а <em>CSS отвечает за её внешний вид</em>.
+        </p>
+
+        <p>
+          Можно использовать и оба тега вместе:
+          <strong><em>это очень важный фрагмент текста</em></strong>.
+        </p>
+      </section>
+
+      <section id="lists-demo" class="card">
+        <h2>Списки</h2>
+
+        <h3>Маркированный список</h3>
+        <ul>
+          <li>Заголовки помогают разделить страницу на части</li>
+          <li>Абзацы делают текст удобным для чтения</li>
+          <li>Списки подходят для перечислений</li>
+        </ul>
+
+        <h3>Нумерованный список</h3>
+        <ol>
+          <li>Создать HTML-документ</li>
+          <li>Добавить текстовые элементы</li>
+          <li>Проверить результат в браузере</li>
+        </ol>
+
+        <h3>Вложенный список</h3>
+        <ul>
+          <li>Текстовые теги
+            <ul>
+              <li>заголовки</li>
+              <li>абзацы</li>
+              <li>выделение текста</li>
+            </ul>
+          </li>
+          <li>Дополнительные элементы
+            <ul>
+              <li>горизонтальная линия</li>
+              <li>специальные символы</li>
+              <li>бегущая строка</li>
+            </ul>
+          </li>
         </ul>
       </section>
 
-      <section id="practice" class="card">
-        <h2>Практическое задание</h2>
+      <section id="hr-demo" class="card">
+        <h2>Горизонтальная линия &lt;hr&gt;</h2>
         <p>
-          Во второй лабораторной работе к уже готовому каркасу страницы
-          добавляются новые информационные блоки. Это позволяет закрепить
-          работу с секциями, заголовками, абзацами и однотипными элементами.
+          Тег <code>&lt;hr&gt;</code> разделяет части содержимого.
+          Ниже просто показано несколько примеров подряд.
         </p>
 
-        <div class="feature-grid">
-          <article class="feature-box">
-            <h3>Блок 1</h3>
-            <p>
-              Добавить новый раздел страницы с заголовком и кратким описанием.
-            </p>
-          </article>
-
-          <article class="feature-box">
-            <h3>Блок 2</h3>
-            <p>
-              Оформить несколько одинаковых элементов в виде карточек.
-            </p>
-          </article>
-
-          <article class="feature-box">
-            <h3>Блок 3</h3>
-            <p>
-              Проверить, как CSS влияет на отступы, рамки, фон и расположение элементов.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section id="result" class="card">
-        <h2>Ожидаемый результат</h2>
-        <p>
-          После выполнения работы страница должна остаться семантически правильной,
-          но стать более аккуратной и удобной для чтения.
-        </p>
+        <p>Первый фрагмент текста перед линией.</p>
+        <hr>
+        <p>Второй фрагмент текста после линии.</p>
+        <hr>
+        <p>Третий фрагмент текста после ещё одной линии.</p>
 
         <p class="note">
-          На этом этапе уже видно, как из простого каркаса HTML-страницы
-          получается более оформленный учебный макет.
+          В старых материалах часто говорят “линия”, но по смыслу это именно
+          разделитель тематических частей страницы.
+        </p>
+      </section>
+
+      <section id="symbols-demo" class="card">
+        <h2>Специальные символы HTML</h2>
+        <p>
+          Некоторые символы в HTML записываются не напрямую, а через специальные
+          последовательности.
         </p>
 
-        <a class="button-link" href="#goal">Вернуться к началу</a>
+        <ul>
+          <li><code>&amp;lt;</code> = &lt;</li>
+          <li><code>&amp;gt;</code> = &gt;</li>
+          <li><code>&amp;amp;</code> = &amp;</li>
+          <li><code>&amp;copy;</code> = &copy;</li>
+          <li><code>&amp;quot;</code> = &quot;</li>
+          <li><code>&amp;nbsp;</code> = неразрывный пробел</li>
+        </ul>
+
+        <p>
+          Пример вывода тега как текста:
+          <code>&amp;lt;h1&amp;gt;Заголовок&amp;lt;/h1&amp;gt;</code>
+        </p>
+
+        <p>
+          Пример с амперсандом: A &amp; B.
+        </p>
+      </section>
+
+      <section id="code-demo" class="card">
+        <h2>Теги &lt;code&gt; и &lt;pre&gt;</h2>
+        <p>
+          <code>&lt;code&gt;</code> обычно используют для коротких фрагментов кода прямо в тексте,
+          а <code>&lt;pre&gt;</code> — когда нужно сохранить переносы строк и пробелы.
+        </p>
+
+        <p>
+          Пример встроенного кода:
+          <code>&lt;p&gt;Это абзац&lt;/p&gt;</code>
+        </p>
+
+<pre>
+&lt;h1&gt;Пример заголовка&lt;/h1&gt;
+&lt;p&gt;Пример абзаца&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Первый пункт&lt;/li&gt;
+  &lt;li&gt;Второй пункт&lt;/li&gt;
+&lt;/ul&gt;
+</pre>
+      </section>
+
+      <section id="marquee-demo" class="card">
+        <h2>Бегущая строка</h2>
+        <p>
+          Ниже показан учебный пример с <code>&lt;marquee&gt;</code>.
+        </p>
+
+        <marquee behavior="scroll" direction="left">
+          Пример обычной бегущей строки
+        </marquee>
+
+        <marquee behavior="alternate" direction="right">
+          Пример alternate: строка двигается туда-обратно
+        </marquee>
+
+        <marquee behavior="scroll" direction="up" height="60">
+          Пример вертикального движения
+        </marquee>
+
+        <p class="note">
+          Это устаревший элемент, но в старых учебных материалах он часто встречается как демонстрационный пример.
+        </p>
       </section>
     </div>
   </main>

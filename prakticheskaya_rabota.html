@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практическая работа — Блочная вёрстка</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Segoe UI, Arial, sans-serif; background: #f4f5f7; color: #1a1a1a; min-height: 100vh; }
+
+    .page { max-width: 820px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    .top-header { background: #1a1a2e; color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 28px; }
+    .top-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .top-header p { font-size: 14px; color: #aaa; }
+
+    .progress-wrap { margin-bottom: 24px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
+    .progress-bar { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2563eb; border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+
+    .step-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .step-card.is-done { border-color: #86efac; }
+    .step-card.is-active { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+
+    .step-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; }
+    .step-head:hover { background: #f8fafc; }
+
+    .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+    .step-num.done   { background: #dcfce7; color: #16a34a; }
+    .step-num.active { background: #dbeafe; color: #2563eb; }
+    .step-num.locked { background: #f1f5f9; color: #94a3b8; }
+
+    .step-title-wrap { flex: 1; }
+    .step-title { font-size: 15px; font-weight: 600; }
+    .step-sub   { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    .step-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .badge-done   { background: #dcfce7; color: #16a34a; }
+    .badge-active { background: #dbeafe; color: #2563eb; }
+    .badge-locked { background: #f1f5f9; color: #94a3b8; }
+
+    .chevron { font-size: 12px; color: #94a3b8; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(90deg); }
+
+    .step-body { display: none; padding: 0 20px 20px; border-top: 1px solid #f1f5f9; }
+    .step-body.open { display: block; }
+
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #94a3b8; text-transform: uppercase; margin: 16px 0 8px; }
+
+    .task-box { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 14px; line-height: 1.65; }
+    .task-box ul { padding-left: 16px; margin-top: 6px; }
+    .task-box li { margin-bottom: 4px; }
+
+    .preview { background: #f4f5f7; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+
+    .lb { border: 2px solid #888; border-radius: 3px; padding: 4px 8px; font-size: 11px; color: #444; margin-bottom: 5px; min-height: 22px; display: flex; align-items: flex-start; }
+    .lb.header  { background: #ccc; }
+    .lb.sidebar { background: #ddd; }
+    .lb.main    { background: #ebebeb; min-height: 50px; }
+    .lb.footer  { background: #ccc; margin-bottom: 0; }
+    .lb.menu    { background: #ddd; }
+    .lb.content { background: #ebebeb; }
+    .lb.rsidebar{ background: #bbb; }
+    .lb.lsidebar{ background: #ddd; }
+
+    .row-p { display: flex; gap: 5px; margin-bottom: 5px; }
+    .row-p .lb { margin-bottom: 0; flex: 1; min-height: 50px; }
+    .row-p .lb.sidebar { flex: 0 0 70px; }
+    .row-p .lb.lsidebar { flex: 0 0 70px; }
+    .row-p .lb.rsidebar { flex: 0 0 70px; }
+    .row-p .lb.menu     { flex: 0 0 60px; }
+
+    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 14px 16px; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.7; overflow-x: auto; white-space: pre; margin-top: 6px; }
+    pre .kw  { color: #93c5fd; }
+    pre .val { color: #86efac; }
+    pre .tag { color: #fca5a5; }
+    pre .attr{ color: #fde68a; }
+    pre .str { color: #a5f3fc; }
+    pre .cm  { color: #64748b; }
+
+    .hint { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #78350f; margin-top: 10px; }
+    .hint strong { font-weight: 600; }
+
+    .done-btn { margin-top: 16px; padding: 10px 24px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .done-btn:hover { background: #1d4ed8; }
+    .done-btn:active { transform: scale(0.97); }
+    .done-btn.final { background: #16a34a; }
+    .done-btn.final:hover { background: #15803d; }
+
+    code { background: #f1f5f9; color: #be123c; padding: 1px 5px; border-radius: 4px; font-family: Consolas, monospace; font-size: 12.5px; }
+
+    .finish-banner { display: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border-radius: 12px; padding: 28px 32px; text-align: center; margin-top: 16px; }
+    .finish-banner h2 { font-size: 22px; margin-bottom: 8px; }
+    .finish-banner p { font-size: 14px; opacity: 0.9; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-header">
+    <h1>Практическая работа — Блочная вёрстка HTML/CSS</h1>
+    <p>Тема: блоки, float, макеты страниц &nbsp;|&nbsp; Выполняйте шаги строго по порядку</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="prog-text">Выполнено: 0 из 5 заданий</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- ШАГ 1 -->
+  <div class="step-card is-active" id="card1">
+    <div class="step-head" onclick="toggle(1)">
+      <div class="step-num active" id="sn1">1</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Базовый макет из блоков</div>
+        <div class="step-sub">div, margin, border, background-color</div>
+      </div>
+      <span class="step-badge badge-active" id="sb1">Начать</span>
+      <span class="chevron open" id="ch1">&#9654;</span>
+    </div>
+    <div class="step-body open" id="body1">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте HTML-файл с четырьмя блоками: шапка, сайдбар, основное содержимое, футер. Все блоки расположите <strong>друг под другом</strong>.</div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="lb header">Шапка сайта</div>
+        <div class="lb sidebar">Сайдбар</div>
+        <div class="lb main">Основное содержимое</div>
+        <div class="lb footer">Футер</div>
+      </div>
+
+      <div class="section-label">HTML — структура страницы</div>
+<pre><span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html&gt;</span>
+  <span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"utf-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Блочная вёрстка<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;style&gt;</span>
+      <span class="cm">/* сюда пишем CSS */</span>
+    <span class="tag">&lt;/style&gt;</span>
+  <span class="tag">&lt;/head&gt;</span>
+  <span class="tag">&lt;body&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Шапка сайта<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"sidebar"</span><span class="tag">&gt;</span>Сайдбар<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Футер<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre>
+
+      <div class="section-label">CSS — стили</div>
+<pre><span class="kw">div</span> {
+  <span class="attr">margin</span>: <span class="val">10px</span>;
+  <span class="attr">border</span>: <span class="val">1px solid black</span>;
+  <span class="attr">font-size</span>: <span class="val">20px</span>;
+  <span class="attr">height</span>: <span class="val">80px</span>;
+}
+<span class="kw">#header</span>  { <span class="attr">background-color</span>: <span class="val">#ccc</span>; }
+<span class="kw">#sidebar</span> { <span class="attr">background-color</span>: <span class="val">#ddd</span>; }
+<span class="kw">#main</span>    { <span class="attr">background-color</span>: <span class="val">#eee</span>; <span class="attr">height</span>: <span class="val">200px</span>; }
+<span class="kw">#footer</span>  { <span class="attr">background-color</span>: <span class="val">#ccc</span>; }</pre>
+
+      <div class="hint"><strong>Подсказка:</strong> CSS пишите внутри тега <code>&lt;style&gt;</code> в <code>&lt;head&gt;</code>. Сохраните файл как <code>index.html</code> и откройте в браузере.</div>
+      <button class="done-btn" onclick="markDone(1)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 2 -->
+  <div class="step-card" id="card2">
+    <div class="step-head" onclick="toggle(2)">
+      <div class="step-num locked" id="sn2">2</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Сайдбар слева — float: left</div>
+        <div class="step-sub">float, margin-left</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb2">Заблокировано</span>
+      <span class="chevron" id="ch2">&#9654;</span>
+    </div>
+    <div class="step-body" id="body2">
+      <div class="section-label">Задание</div>
+      <div class="task-box">С помощью <code>float: left</code> разместите сайдбар <strong>слева</strong> от основного содержимого. Блоки не должны перекрываться.</div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="lb header">Шапка сайта</div>
+        <div class="row-p">
+          <div class="lb sidebar" style="min-height:55px;">Сайдбар</div>
+          <div class="lb main" style="flex:1;">Основное содержимое</div>
+        </div>
+        <div class="lb footer">Футер</div>
+      </div>
+
+      <div class="section-label">Измените CSS для #sidebar и #main</div>
+<pre><span class="kw">#sidebar</span> {
+  <span class="attr">background-color</span>: <span class="val">#ddd</span>;
+  <span class="attr">float</span>: <span class="val">left</span>;
+  <span class="attr">width</span>: <span class="val">150px</span>;
+}
+<span class="kw">#main</span> {
+  <span class="attr">background-color</span>: <span class="val">#eee</span>;
+  <span class="attr">height</span>: <span class="val">200px</span>;
+  <span class="attr">margin-left</span>: <span class="val">170px</span>; <span class="cm">/* 150px + 10px + 10px */</span>
+}</pre>
+
+      <div class="hint"><strong>Подсказка:</strong> <code>margin-left</code> у <code>#main</code> должен быть <strong>больше</strong> ширины сайдбара — иначе блоки наедут друг на друга.</div>
+      <button class="done-btn" onclick="markDone(2)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 3 -->
+  <div class="step-card" id="card3">
+    <div class="step-head" onclick="toggle(3)">
+      <div class="step-num locked" id="sn3">3</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Правый сайдбар + меню внутри main</div>
+        <div class="step-sub">float: right, вложенные блоки</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb3">Заблокировано</span>
+      <span class="chevron" id="ch3">&#9654;</span>
+    </div>
+    <div class="step-body" id="body3">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Добавьте правый сайдбар (<code>float: right</code>). Внутри <code>#main</code> создайте два вложенных блока: меню слева и содержимое рядом.</div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="lb header">Шапка сайта</div>
+        <div class="row-p">
+          <div class="lb main" style="flex:1; display:flex; gap:5px; padding:5px; min-height:60px;">
+            <div class="lb menu" style="flex:0 0 55px; min-height:50px; margin-bottom:0;">Меню</div>
+            <div class="lb content" style="flex:1; min-height:50px; margin-bottom:0;">Содержимое</div>
+          </div>
+          <div class="lb rsidebar" style="flex:0 0 70px; min-height:60px;">Правый<br>сайдбар</div>
+        </div>
+        <div class="lb footer">Футер</div>
+      </div>
+
+      <div class="section-label">HTML — новая структура</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Шапка сайта<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"sidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span>  <span class="cm">&lt;!-- до #main! --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>Меню<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"content"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Футер<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="section-label">CSS</div>
+<pre><span class="kw">#sidebar</span>  { <span class="attr">float</span>: <span class="val">right</span>;  <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#bbb</span>; }
+<span class="kw">#main</span>     { <span class="attr">margin-right</span>: <span class="val">170px</span>; <span class="attr">background</span>: <span class="val">#fafafa</span>; <span class="attr">height</span>: <span class="val">200px</span>; }
+<span class="kw">#menu</span>     { <span class="attr">float</span>: <span class="val">left</span>; <span class="attr">width</span>: <span class="val">160px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }
+<span class="kw">#content</span>  { <span class="attr">margin-left</span>: <span class="val">180px</span>; <span class="attr">background</span>: <span class="val">#eee</span>; }</pre>
+
+      <div class="hint"><strong>Важно:</strong> <code>#sidebar</code> в HTML должен стоять <strong>перед</strong> <code>#main</code> — иначе <code>float: right</code> не сработает правильно.</div>
+      <button class="done-btn" onclick="markDone(3)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 4 -->
+  <div class="step-card" id="card4">
+    <div class="step-head" onclick="toggle(4)">
+      <div class="step-num locked" id="sn4">4</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Два сайдбара — трёхколоночный макет</div>
+        <div class="step-sub">float: left + float: right одновременно</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb4">Заблокировано</span>
+      <span class="chevron" id="ch4">&#9654;</span>
+    </div>
+    <div class="step-body" id="body4">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте трёхколоночный макет: левый сайдбар, центральное содержимое, правый сайдбар — все в одну строку.</div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="lb header">Шапка сайта</div>
+        <div class="row-p">
+          <div class="lb lsidebar" style="min-height:55px;">Левый<br>сайдбар</div>
+          <div class="lb main" style="flex:1;">Основное содержимое</div>
+          <div class="lb rsidebar" style="min-height:55px;">Правый<br>сайдбар</div>
+        </div>
+        <div class="lb footer">Футер</div>
+      </div>
+
+      <div class="section-label">HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Шапка сайта<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"leftSidebar"</span><span class="tag">&gt;</span>Левый сайдбар<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"rightSidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Футер<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="section-label">CSS</div>
+<pre><span class="kw">#leftSidebar</span>  { <span class="attr">float</span>: <span class="val">left</span>;  <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }
+<span class="kw">#rightSidebar</span> { <span class="attr">float</span>: <span class="val">right</span>; <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#bbb</span>; }
+<span class="kw">#main</span> {
+  <span class="attr">background</span>: <span class="val">#eee</span>;
+  <span class="attr">height</span>: <span class="val">200px</span>;
+  <span class="attr">margin-left</span>: <span class="val">170px</span>;
+  <span class="attr">margin-right</span>: <span class="val">170px</span>;
+}</pre>
+
+      <div class="hint"><strong>Порядок важен:</strong> оба сайдбара должны стоять в HTML <strong>перед</strong> блоком <code>#main</code>.</div>
+      <button class="done-btn" onclick="markDone(4)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 5 -->
+  <div class="step-card" id="card5">
+    <div class="step-head" onclick="toggle(5)">
+      <div class="step-num locked" id="sn5">5</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Самостоятельное задание</div>
+        <div class="step-sub">Создайте страницу сайта с реальным содержимым</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb5">Заблокировано</span>
+      <span class="chevron" id="ch5">&#9654;</span>
+    </div>
+    <div class="step-body" id="body5">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте страницу сайта. Требования:
+        <ul>
+          <li>Шапка с названием сайта</li>
+          <li>Левое меню с 4 ссылками: Главная, Блог, Контакты, О сайте</li>
+          <li>Основной блок с заголовком <code>&lt;h2&gt;</code> и текстом <code>&lt;p&gt;</code></li>
+          <li>Футер с текстом «Copyright © 2026»</li>
+          <li>У <code>body</code>, <code>h2</code>, <code>p</code> убрать все отступы</li>
+        </ul>
+      </div>
+
+      <div class="section-label">Подсказка — CSS</div>
+<pre><span class="kw">body, h2, p</span> { <span class="attr">margin</span>: <span class="val">0</span>; <span class="attr">padding</span>: <span class="val">0</span>; }
+<span class="kw">body</span>        { <span class="attr">font-size</span>: <span class="val">18px</span>; }
+
+<span class="kw">#header</span>  { <span class="attr">background</span>: <span class="val">#eee</span>; <span class="attr">border-bottom</span>: <span class="val">1px solid #ccc</span>; <span class="attr">height</span>: <span class="val">80px</span>; }
+<span class="kw">#wrapper</span> { <span class="attr">background</span>: <span class="val">#ddd</span>; }
+
+<span class="kw">#menu</span> {
+  <span class="attr">float</span>: <span class="val">left</span>;
+  <span class="attr">width</span>: <span class="val">150px</span>;
+}
+<span class="kw">#main</span> {
+  <span class="attr">background</span>: <span class="val">#f7f7f7</span>;
+  <span class="attr">border-left</span>: <span class="val">1px solid #ccc</span>;
+  <span class="attr">margin-left</span>: <span class="val">150px</span>;
+  <span class="attr">padding</span>: <span class="val">10px</span>;
+}
+<span class="kw">#footer</span> { <span class="attr">border-top</span>: <span class="val">1px solid #ccc</span>; <span class="attr">background</span>: <span class="val">#dedede</span>; }</pre>
+
+      <div class="section-label">Подсказка — HTML структура</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Название сайта<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"wrapper"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;ul&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span><span class="tag">&gt;</span>Главная<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span><span class="tag">&gt;</span>Блог<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span><span class="tag">&gt;</span>Контакты<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span><span class="tag">&gt;</span>О сайте<span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Заголовок страницы<span class="tag">&lt;/h2&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Текст содержимого...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Copyright © 2026<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="hint"><strong>Обратите внимание:</strong> меню и <code>#main</code> оба находятся внутри блока <code>#wrapper</code> — это важно для правильной работы float.</div>
+      <button class="done-btn final" onclick="markDone(5)">Сдать работу ✓</button>
+    </div>
+  </div>
+
+  <div class="finish-banner" id="finish">
+    <h2>Работа выполнена!</h2>
+    <p>Вы освоили блочную вёрстку с использованием float. Покажите результат преподавателю.</p>
+  </div>
+
+</div>
+
+<script>
+  var total = 5;
+  var done = 0;
+
+  function toggle(n) {
+    var body = document.getElementById('body' + n);
+    var ch = document.getElementById('ch' + n);
+    if (body.classList.contains('open')) {
+      body.classList.remove('open');
+      ch.classList.remove('open');
+    } else {
+      body.classList.add('open');
+      ch.classList.add('open');
+    }
+  }
+
+  function markDone(n) {
+    done++;
+    var sn = document.getElementById('sn' + n);
+    var sb = document.getElementById('sb' + n);
+    var card = document.getElementById('card' + n);
+    sn.className = 'step-num done';
+    sn.innerHTML = '&#10003;';
+    sb.className = 'step-badge badge-done';
+    sb.textContent = 'Выполнено';
+    card.classList.remove('is-active');
+    card.classList.add('is-done');
+    document.getElementById('body' + n).classList.remove('open');
+    document.getElementById('ch' + n).classList.remove('open');
+
+    var pct = Math.round(done / total * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-text').textContent = 'Выполнено: ' + done + ' из ' + total + ' заданий';
+    document.getElementById('prog-pct').textContent = pct + '%';
+
+    var next = n + 1;
+    if (next <= total) {
+      document.getElementById('sn' + next).className = 'step-num active';
+      document.getElementById('sb' + next).className = 'step-badge badge-active';
+      document.getElementById('sb' + next).textContent = 'Начать';
+      document.getElementById('card' + next).classList.add('is-active');
+      document.getElementById('body' + next).classList.add('open');
+      document.getElementById('ch' + next).classList.add('open');
+    }
+
+    if (done === total) {
+      document.getElementById('finish').style.display = 'block';
+      document.getElementById('prog-text').textContent = 'Все задания выполнены!';
+    }
+  }
+</script>
+</body>
+</html>

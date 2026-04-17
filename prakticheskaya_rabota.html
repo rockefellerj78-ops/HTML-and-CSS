@@ -71,7 +71,24 @@
     .row-p .lb.rsidebar { flex: 0 0 70px; }
     .row-p .lb.menu     { flex: 0 0 60px; }
 
-    pre { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 14px 16px; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.7; overflow-x: auto; white-space: pre; margin-top: 6px; }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+      margin-top: 6px;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+      cursor: default;
+    }
+
     pre .kw  { color: #93c5fd; }
     pre .val { color: #86efac; }
     pre .tag { color: #fca5a5; }
@@ -88,7 +105,18 @@
     .done-btn.final { background: #16a34a; }
     .done-btn.final:hover { background: #15803d; }
 
-    code { background: #f1f5f9; color: #be123c; padding: 1px 5px; border-radius: 4px; font-family: Consolas, monospace; font-size: 12.5px; }
+    code {
+      background: #f1f5f9;
+      color: #be123c;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 12.5px;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+    }
 
     .finish-banner { display: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border-radius: 12px; padding: 28px 32px; text-align: center; margin-top: 16px; }
     .finish-banner h2 { font-size: 22px; margin-bottom: 8px; }
@@ -429,6 +457,47 @@
       document.getElementById('prog-text').textContent = 'Все задания выполнены!';
     }
   }
+
+  document.querySelectorAll('pre, code').forEach(function(el) {
+    el.addEventListener('copy', function(e) {
+      e.preventDefault();
+      alert('Копирование подсказок отключено');
+    });
+
+    el.addEventListener('cut', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('selectstart', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('mousedown', function(e) {
+      if (e.detail > 1) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    var active = document.activeElement;
+    var selection = window.getSelection();
+    var node = selection && selection.anchorNode ? selection.anchorNode.parentElement : null;
+    var inCode = node && node.closest && node.closest('pre, code');
+
+    if (inCode && ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x' || e.key === 'a'))) {
+      e.preventDefault();
+      alert('Копирование подсказок отключено');
+    }
+  });
 </script>
 </body>
 </html>

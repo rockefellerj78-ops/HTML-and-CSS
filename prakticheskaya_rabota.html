@@ -96,6 +96,17 @@
     pre .str { color: #a5f3fc; }
     pre .cm  { color: #64748b; }
 
+    pre .add { background: rgba(134,239,172,0.15); display: block; border-left: 3px solid #86efac; padding-left: 6px; margin-left: -6px; }
+    pre .del { background: rgba(252,165,165,0.15); display: block; border-left: 3px solid #fca5a5; padding-left: 6px; margin-left: -6px; text-decoration: line-through; opacity: 0.6; }
+    pre .chg { background: rgba(253,230,138,0.15); display: block; border-left: 3px solid #fde68a; padding-left: 6px; margin-left: -6px; }
+
+    .diff-legend { display: flex; gap: 16px; font-size: 11px; margin-bottom: 8px; margin-top: 12px; }
+    .diff-legend span { display: flex; align-items: center; gap: 5px; }
+    .diff-legend .dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .dot-add { background: #86efac; }
+    .dot-chg { background: #fde68a; }
+    .dot-del { background: #fca5a5; }
+
     .hint { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #78350f; margin-top: 10px; }
     .hint strong { font-weight: 600; }
 
@@ -222,16 +233,19 @@
         <div class="lb footer">Футер</div>
       </div>
 
-      <div class="section-label">Измените CSS для #sidebar и #main</div>
+      <div class="section-label">Что изменить в CSS (тот же файл)</div>
+      <div class="diff-legend">
+        <span><span class="dot dot-add"></span>добавить строку</span>
+      </div>
 <pre><span class="kw">#sidebar</span> {
   <span class="attr">background-color</span>: <span class="val">#ddd</span>;
-  <span class="attr">float</span>: <span class="val">left</span>;
-  <span class="attr">width</span>: <span class="val">150px</span>;
+<span class="add">  <span class="attr">float</span>: <span class="val">left</span>;</span>
+<span class="add">  <span class="attr">width</span>: <span class="val">150px</span>;</span>
 }
 <span class="kw">#main</span> {
   <span class="attr">background-color</span>: <span class="val">#eee</span>;
   <span class="attr">height</span>: <span class="val">200px</span>;
-  <span class="attr">margin-left</span>: <span class="val">170px</span>; <span class="cm">/* 150px + 10px + 10px */</span>
+<span class="add">  <span class="attr">margin-left</span>: <span class="val">170px</span>; <span class="cm">/* 150px ширина + 10px + 10px отступы */</span></span>
 }</pre>
 
       <div class="hint"><strong>Подсказка:</strong> <code>margin-left</code> у <code>#main</code> должен быть <strong>больше</strong> ширины сайдбара — иначе блоки наедут друг на друга.</div>
@@ -267,20 +281,42 @@
         <div class="lb footer">Футер</div>
       </div>
 
-      <div class="section-label">HTML — новая структура</div>
-<pre><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Шапка сайта<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"sidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span>  <span class="cm">&lt;!-- до #main! --&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>
-  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>Меню<span class="tag">&lt;/div&gt;</span>
-  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"content"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Футер<span class="tag">&lt;/div&gt;</span></pre>
+      <div class="section-label">Что изменить в HTML</div>
+      <div class="diff-legend">
+        <span><span class="dot dot-add"></span>добавить</span>
+        <span><span class="dot dot-chg"></span>изменить</span>
+      </div>
+<pre><span class="cm">/* 1. Поменять текст и float у #sidebar (он теперь справа) */</span>
+<span class="chg"><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"sidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span>  <span class="cm">&lt;!-- оставьте ДО #main --&gt;</span></span>
 
-      <div class="section-label">CSS</div>
-<pre><span class="kw">#sidebar</span>  { <span class="attr">float</span>: <span class="val">right</span>;  <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#bbb</span>; }
-<span class="kw">#main</span>     { <span class="attr">margin-right</span>: <span class="val">170px</span>; <span class="attr">background</span>: <span class="val">#fafafa</span>; <span class="attr">height</span>: <span class="val">200px</span>; }
-<span class="kw">#menu</span>     { <span class="attr">float</span>: <span class="val">left</span>; <span class="attr">width</span>: <span class="val">160px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }
-<span class="kw">#content</span>  { <span class="attr">margin-left</span>: <span class="val">180px</span>; <span class="attr">background</span>: <span class="val">#eee</span>; }</pre>
+<span class="cm">/* 2. Внутрь #main добавить два вложенных блока */</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>
+<span class="add">  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>Меню<span class="tag">&lt;/div&gt;</span></span>
+<span class="add">  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"content"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span></span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="section-label">Что изменить в CSS</div>
+      <div class="diff-legend">
+        <span><span class="dot dot-add"></span>добавить</span>
+        <span><span class="dot dot-chg"></span>изменить</span>
+        <span><span class="dot dot-del"></span>удалить</span>
+      </div>
+<pre><span class="kw">#sidebar</span> {
+  <span class="attr">background-color</span>: <span class="val">#bbb</span>;
+<span class="del">  <span class="attr">float</span>: <span class="val">left</span>;</span>
+<span class="chg">  <span class="attr">float</span>: <span class="val">right</span>; <span class="cm">/* было left → теперь right */</span></span>
+  <span class="attr">width</span>: <span class="val">150px</span>;
+}
+<span class="kw">#main</span> {
+  <span class="attr">background</span>: <span class="val">#fafafa</span>;
+  <span class="attr">height</span>: <span class="val">200px</span>;
+<span class="del">  <span class="attr">margin-left</span>: <span class="val">170px</span>;</span>
+<span class="chg">  <span class="attr">margin-right</span>: <span class="val">170px</span>; <span class="cm">/* было left → теперь right */</span></span>
+}
+
+<span class="cm">/* добавить новые правила в конец &lt;style&gt; */</span>
+<span class="add"><span class="kw">#menu</span>    { <span class="attr">float</span>: <span class="val">left</span>;  <span class="attr">width</span>: <span class="val">160px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }</span>
+<span class="add"><span class="kw">#content</span> { <span class="attr">margin-left</span>: <span class="val">180px</span>; <span class="attr">background</span>: <span class="val">#eee</span>; }</span></pre>
 
       <div class="hint"><strong>Важно:</strong> <code>#sidebar</code> в HTML должен стоять <strong>перед</strong> <code>#main</code> — иначе <code>float: right</code> не сработает правильно.</div>
       <button class="done-btn" onclick="markDone(3)">Готово ✓</button>
@@ -313,22 +349,47 @@
         <div class="lb footer">Футер</div>
       </div>
 
-      <div class="section-label">HTML</div>
-<pre><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Шапка сайта<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"leftSidebar"</span><span class="tag">&gt;</span>Левый сайдбар<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"rightSidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span>
-<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Футер<span class="tag">&lt;/div&gt;</span></pre>
+      <div class="section-label">Что изменить в HTML</div>
+      <div class="diff-legend">
+        <span><span class="dot dot-add"></span>добавить</span>
+        <span><span class="dot dot-chg"></span>изменить</span>
+        <span><span class="dot dot-del"></span>удалить</span>
+      </div>
+<pre><span class="cm">/* 1. Переименовать #sidebar и добавить левый сайдбар */</span>
+<span class="del"><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"sidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span></span>
+<span class="add"><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"leftSidebar"</span><span class="tag">&gt;</span>Левый сайдбар<span class="tag">&lt;/div&gt;</span></span>
+<span class="add"><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"rightSidebar"</span><span class="tag">&gt;</span>Правый сайдбар<span class="tag">&lt;/div&gt;</span></span>
 
-      <div class="section-label">CSS</div>
-<pre><span class="kw">#leftSidebar</span>  { <span class="attr">float</span>: <span class="val">left</span>;  <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }
-<span class="kw">#rightSidebar</span> { <span class="attr">float</span>: <span class="val">right</span>; <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#bbb</span>; }
+<span class="cm">/* 2. Внутри #main удалить вложенные блоки, вернуть простой текст */</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"main"</span><span class="tag">&gt;</span>
+<span class="del">  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>Меню<span class="tag">&lt;/div&gt;</span></span>
+<span class="del">  <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"content"</span><span class="tag">&gt;</span>Основное содержимое<span class="tag">&lt;/div&gt;</span></span>
+<span class="add">  Основное содержимое</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="section-label">Что изменить в CSS</div>
+      <div class="diff-legend">
+        <span><span class="dot dot-add"></span>добавить</span>
+        <span><span class="dot dot-chg"></span>изменить</span>
+        <span><span class="dot dot-del"></span>удалить</span>
+      </div>
+<pre><span class="cm">/* заменить правило #sidebar на два новых */</span>
+<span class="del"><span class="kw">#sidebar</span> { <span class="attr">float</span>: <span class="val">right</span>; <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#bbb</span>; }</span>
+<span class="add"><span class="kw">#leftSidebar</span>  { <span class="attr">float</span>: <span class="val">left</span>;  <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }</span>
+<span class="add"><span class="kw">#rightSidebar</span> { <span class="attr">float</span>: <span class="val">right</span>; <span class="attr">width</span>: <span class="val">150px</span>; <span class="attr">background</span>: <span class="val">#bbb</span>; }</span>
+
+<span class="cm">/* изменить #main — теперь отступы с обеих сторон */</span>
 <span class="kw">#main</span> {
   <span class="attr">background</span>: <span class="val">#eee</span>;
   <span class="attr">height</span>: <span class="val">200px</span>;
-  <span class="attr">margin-left</span>: <span class="val">170px</span>;
-  <span class="attr">margin-right</span>: <span class="val">170px</span>;
-}</pre>
+<span class="del">  <span class="attr">margin-right</span>: <span class="val">170px</span>;</span>
+<span class="chg">  <span class="attr">margin-left</span>: <span class="val">170px</span>;</span>
+<span class="add">  <span class="attr">margin-right</span>: <span class="val">170px</span>;</span>
+}
+
+<span class="cm">/* удалить правила #menu и #content — они больше не нужны */</span>
+<span class="del"><span class="kw">#menu</span>    { <span class="attr">float</span>: <span class="val">left</span>; <span class="attr">width</span>: <span class="val">160px</span>; <span class="attr">background</span>: <span class="val">#ddd</span>; }</span>
+<span class="del"><span class="kw">#content</span> { <span class="attr">margin-left</span>: <span class="val">180px</span>; <span class="attr">background</span>: <span class="val">#eee</span>; }</span></pre>
 
       <div class="hint"><strong>Порядок важен:</strong> оба сайдбара должны стоять в HTML <strong>перед</strong> блоком <code>#main</code>.</div>
       <button class="done-btn" onclick="markDone(4)">Готово ✓</button>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практическая работа — Трансформации и анимации CSS</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Segoe UI, Arial, sans-serif; background: #f4f5f7; color: #1a1a1a; min-height: 100vh; }
+
+    .page { max-width: 820px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    .top-header { background: #1a1a2e; color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 28px; }
+    .top-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .top-header p { font-size: 14px; color: #aaa; }
+
+    .progress-wrap { margin-bottom: 24px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
+    .progress-bar { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2563eb; border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+
+    .step-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .step-card.is-done { border-color: #86efac; }
+    .step-card.is-active { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+
+    .step-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; }
+    .step-head:hover { background: #f8fafc; }
+
+    .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+    .step-num.done   { background: #dcfce7; color: #16a34a; }
+    .step-num.active { background: #dbeafe; color: #2563eb; }
+    .step-num.locked { background: #f1f5f9; color: #94a3b8; }
+
+    .step-title-wrap { flex: 1; }
+    .step-title { font-size: 15px; font-weight: 600; }
+    .step-sub   { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    .step-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .badge-done   { background: #dcfce7; color: #16a34a; }
+    .badge-active { background: #dbeafe; color: #2563eb; }
+    .badge-locked { background: #f1f5f9; color: #94a3b8; }
+
+    .chevron { font-size: 12px; color: #94a3b8; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(90deg); }
+
+    .step-body { display: none; padding: 0 20px 20px; border-top: 1px solid #f1f5f9; }
+    .step-body.open { display: block; }
+
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #94a3b8; text-transform: uppercase; margin: 16px 0 8px; }
+
+    .task-box { background: #f8fafc; border-left: 3px solid #2563eb; border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 14px; line-height: 1.65; }
+    .task-box ul { padding-left: 16px; margin-top: 6px; }
+    .task-box li { margin-bottom: 4px; }
+
+    .preview { background: #f4f5f7; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; min-height: 180px; display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; }
+
+    /* ---- ПРЕВЬЮ ШАГА 1: rotate + scale ---- */
+    .p1-box { width: 80px; height: 80px; background: #ccc; border: 1px solid #333; display: inline-block; }
+    .p1-rotate { transform: rotate(30deg); }
+    .p1-scale  { transform: scale(1.4); }
+
+    /* ---- ПРЕВЬЮ ШАГА 2: translate, skew, origin ---- */
+    .p2-box { width: 80px; height: 80px; background: #ccc; border: 1px solid #333; display: inline-block; }
+    .p2-translate { transform: translate(20px, -10px); background: #b5d0ff; }
+    .p2-skew { transform: skew(-20deg, 0); background: #fcb5b5; }
+    .p2-origin { transform-origin: left top; transform: rotate(-30deg); background: #c3f5c3; }
+
+    /* ---- ПРЕВЬЮ ШАГА 3: transition ---- */
+    .p3-box { width: 90px; height: 90px; background: #ccc; border: 1px solid #333; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: #444; }
+    .p3-instant:hover { background: #f87171; }
+    .p3-smooth { transition: background 1s, transform 1s; }
+    .p3-smooth:hover { background: #f87171; transform: scale(1.15); }
+
+    /* ---- ПРЕВЬЮ ШАГА 4: @keyframes ---- */
+    @keyframes demo4-color {
+      0%   { background: #f87171; }
+      25%  { background: #fbbf24; }
+      50%  { background: #34d399; }
+      75%  { background: #60a5fa; }
+      100% { background: #c084fc; }
+    }
+    .p4-box { width: 90px; height: 90px; border: 1px solid #333; animation: demo4-color 4s infinite alternate; }
+
+    /* ---- ПРЕВЬЮ ШАГА 5: демо-баннер + фигуры ---- */
+    @keyframes p5-bg {
+      0%   { background: #008978; }
+      50%  { background: #34495e; }
+      100% { background: #16a34a; }
+    }
+    @keyframes p5-t1 { 10% { opacity: 1; } 40% { opacity: 0; } }
+    @keyframes p5-t2 { 30% { opacity: 0; } 60% { opacity: 1; } }
+    .p5-wrap { display: flex; flex-direction: column; gap: 18px; align-items: center; width: 100%; }
+    .p5-row { display: flex; gap: 40px; align-items: center; }
+    .p5-plain { width: 80px; height: 80px; background: #ccc; border: 1px solid #333; }
+    .p5-tr { width: 80px; height: 80px; background: #fcb5b5; border: 1px solid #333; transform: rotate(15deg); transition: transform 0.6s; }
+    .p5-tr:hover { transform: rotate(180deg) scale(1.2); }
+    .p5-banner { width: 100%; max-width: 420px; height: 80px; position: relative; animation: p5-bg 5s infinite; border-radius: 6px; overflow: hidden; }
+    .p5-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 18px; opacity: 0; }
+    .p5-text1 { animation: p5-t1 5s infinite; }
+    .p5-text2 { animation: p5-t2 5s infinite; }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+      margin-top: 6px;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+      cursor: default;
+    }
+
+    pre .kw  { color: #93c5fd; }
+    pre .val { color: #86efac; }
+    pre .tag { color: #fca5a5; }
+    pre .attr{ color: #fde68a; }
+    pre .str { color: #a5f3fc; }
+    pre .cm  { color: #64748b; }
+
+    .hint { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #78350f; margin-top: 10px; }
+    .hint strong { font-weight: 600; }
+
+    .done-btn { margin-top: 16px; padding: 10px 24px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .done-btn:hover { background: #1d4ed8; }
+    .done-btn:active { transform: scale(0.97); }
+    .done-btn.final { background: #16a34a; }
+    .done-btn.final:hover { background: #15803d; }
+
+    code {
+      background: #f1f5f9;
+      color: #be123c;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 12.5px;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .finish-banner { display: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border-radius: 12px; padding: 28px 32px; text-align: center; margin-top: 16px; }
+    .finish-banner h2 { font-size: 22px; margin-bottom: 8px; }
+    .finish-banner p { font-size: 14px; opacity: 0.9; }
+
+    .preview-note { font-size: 12px; color: #64748b; margin-top: 8px; text-align: center; font-style: italic; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-header">
+    <h1>Практическая работа — Трансформации и анимации CSS</h1>
+    <p>Темы: transform, transition, @keyframes &nbsp;|&nbsp; Выполняйте шаги строго по порядку</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="prog-text">Выполнено: 0 из 5 заданий</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- ШАГ 1 -->
+  <div class="step-card is-active" id="card1">
+    <div class="step-head" onclick="toggle(1)">
+      <div class="step-num active" id="sn1">1</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Базовые трансформации — rotate и scale</div>
+        <div class="step-sub">transform: rotate(), scale()</div>
+      </div>
+      <span class="step-badge badge-active" id="sb1">Начать</span>
+      <span class="chevron open" id="ch1">&#9654;</span>
+    </div>
+    <div class="step-body open" id="body1">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте HTML-файл с тремя одинаковыми квадратами. К первому не применяйте ничего, второй поверните на <strong>30 градусов</strong>, третий увеличьте в <strong>1.4 раза</strong>.</div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="p1-box"></div>
+        <div class="p1-box p1-rotate"></div>
+        <div class="p1-box p1-scale"></div>
+      </div>
+
+      <div class="section-label">HTML — структура страницы</div>
+<pre><span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html&gt;</span>
+  <span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"utf-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Трансформации<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;style&gt;</span>
+      <span class="cm">/* сюда пишем CSS */</span>
+    <span class="tag">&lt;/style&gt;</span>
+  <span class="tag">&lt;/head&gt;</span>
+  <span class="tag">&lt;body&gt;</span>
+    <span class="tag">&lt;div&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"rotate"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"scale"</span><span class="tag">&gt;&lt;/div&gt;</span>
+  <span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre>
+
+      <div class="section-label">CSS — стили</div>
+<pre><span class="kw">div</span> {
+  <span class="attr">width</span>: <span class="val">80px</span>;
+  <span class="attr">height</span>: <span class="val">80px</span>;
+  <span class="attr">background</span>: <span class="val">#ccc</span>;
+  <span class="attr">border</span>: <span class="val">1px solid #333</span>;
+  <span class="attr">display</span>: <span class="val">inline-block</span>;
+  <span class="attr">margin</span>: <span class="val">30px</span>;
+}
+<span class="kw">.rotate</span> { <span class="attr">transform</span>: <span class="val">rotate(30deg)</span>; }
+<span class="kw">.scale</span>  { <span class="attr">transform</span>: <span class="val">scale(1.4)</span>; }</pre>
+
+      <div class="hint"><strong>Подсказка:</strong> угол в <code>rotate()</code> задаётся в градусах — <code>deg</code>. Число в <code>scale()</code> — это множитель размера: <code>1</code> — без изменений, <code>0.5</code> — в два раза меньше, <code>2</code> — в два раза больше.</div>
+      <button class="done-btn" onclick="markDone(1)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 2 -->
+  <div class="step-card" id="card2">
+    <div class="step-head" onclick="toggle(2)">
+      <div class="step-num locked" id="sn2">2</div>
+      <div class="step-title-wrap">
+        <div class="step-title">translate, skew и transform-origin</div>
+        <div class="step-sub">смещение, наклон и точка опоры</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb2">Заблокировано</span>
+      <span class="chevron" id="ch2">&#9654;</span>
+    </div>
+    <div class="step-body" id="body2">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте три квадрата разного цвета:
+        <ul>
+          <li>первый сдвиньте на <strong>20px вправо</strong> и <strong>10px вверх</strong> (<code>translate</code>);</li>
+          <li>второй наклоните на <strong>-20 градусов</strong> по оси X (<code>skew</code>);</li>
+          <li>третий поверните на <strong>-30 градусов</strong> вокруг его <strong>левого верхнего угла</strong> (<code>transform-origin</code>).</li>
+        </ul>
+      </div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="p2-box p2-translate"></div>
+        <div class="p2-box p2-skew"></div>
+        <div class="p2-box p2-origin"></div>
+      </div>
+
+      <div class="section-label">HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"move"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"skew"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"origin"</span><span class="tag">&gt;&lt;/div&gt;</span></pre>
+
+      <div class="section-label">CSS</div>
+<pre><span class="kw">div</span> {
+  <span class="attr">width</span>: <span class="val">80px</span>;
+  <span class="attr">height</span>: <span class="val">80px</span>;
+  <span class="attr">border</span>: <span class="val">1px solid #333</span>;
+  <span class="attr">display</span>: <span class="val">inline-block</span>;
+  <span class="attr">margin</span>: <span class="val">30px</span>;
+}
+<span class="kw">.move</span> {
+  <span class="attr">background</span>: <span class="val">#b5d0ff</span>;
+  <span class="attr">transform</span>: <span class="val">translate(20px, -10px)</span>;
+}
+<span class="kw">.skew</span> {
+  <span class="attr">background</span>: <span class="val">#fcb5b5</span>;
+  <span class="attr">transform</span>: <span class="val">skew(-20deg, 0)</span>;
+}
+<span class="kw">.origin</span> {
+  <span class="attr">background</span>: <span class="val">#c3f5c3</span>;
+  <span class="attr">transform-origin</span>: <span class="val">left top</span>;
+  <span class="attr">transform</span>: <span class="val">rotate(-30deg)</span>;
+}</pre>
+
+      <div class="hint"><strong>Запомните:</strong> <code>transform-origin</code> меняет <strong>точку опоры</strong> для трансформации. Без него поворот идёт вокруг центра элемента. Значения: <code>center</code>, <code>left top</code>, <code>right bottom</code>, <code>left bottom</code>, <code>right top</code>.</div>
+      <button class="done-btn" onclick="markDone(2)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 3 -->
+  <div class="step-card" id="card3">
+    <div class="step-head" onclick="toggle(3)">
+      <div class="step-num locked" id="sn3">3</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Плавные переходы — transition</div>
+        <div class="step-sub">плавное изменение свойств при :hover</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb3">Заблокировано</span>
+      <span class="chevron" id="ch3">&#9654;</span>
+    </div>
+    <div class="step-body" id="body3">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте два квадрата. При наведении мыши оба должны становиться красными и чуть больше, но:
+        <ul>
+          <li>у первого переход происходит <strong>мгновенно</strong> (без <code>transition</code>);</li>
+          <li>у второго — <strong>плавно</strong> за 1 секунду.</li>
+        </ul>
+        Наведите курсор в превью ниже — убедитесь, что разница видна.
+      </div>
+
+      <div class="section-label">Ожидаемый результат <span style="color:#64748b; font-weight:400;">(наведите мышь)</span></div>
+      <div class="preview">
+        <div class="p3-box p3-instant">instant</div>
+        <div class="p3-box p3-smooth">smooth</div>
+      </div>
+
+      <div class="section-label">HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"instant"</span><span class="tag">&gt;</span>instant<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"smooth"</span><span class="tag">&gt;</span>smooth<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="section-label">CSS</div>
+<pre><span class="kw">div</span> {
+  <span class="attr">width</span>: <span class="val">90px</span>;
+  <span class="attr">height</span>: <span class="val">90px</span>;
+  <span class="attr">background</span>: <span class="val">#ccc</span>;
+  <span class="attr">border</span>: <span class="val">1px solid #333</span>;
+  <span class="attr">margin</span>: <span class="val">30px</span>;
+  <span class="attr">display</span>: <span class="val">inline-block</span>;
+}
+<span class="kw">.smooth</span> {
+  <span class="attr">transition</span>: <span class="val">background 1s, transform 1s</span>;
+}
+<span class="kw">div:hover</span> {
+  <span class="attr">background</span>: <span class="val">#f87171</span>;
+  <span class="attr">transform</span>: <span class="val">scale(1.15)</span>;
+}</pre>
+
+      <div class="section-label">Краткая форма transition</div>
+<pre><span class="cm">/* transition: свойство длительность функция задержка */</span>
+<span class="attr">transition</span>: <span class="val">background 1s ease-in-out 200ms</span>;
+
+<span class="cm">/* чтобы плавно менялись ВСЕ свойства сразу: */</span>
+<span class="attr">transition</span>: <span class="val">all 1s</span>;</pre>
+
+      <div class="hint"><strong>Важно:</strong> <code>transition</code> прописывается в <strong>обычном состоянии</strong> элемента, а не в <code>:hover</code>. Иначе плавным будет только переход «туда», но не «обратно».</div>
+      <button class="done-btn" onclick="markDone(3)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 4 -->
+  <div class="step-card" id="card4">
+    <div class="step-head" onclick="toggle(4)">
+      <div class="step-num locked" id="sn4">4</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Анимации — @keyframes</div>
+        <div class="step-sub">ключевые кадры, бесконечное воспроизведение</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb4">Заблокировано</span>
+      <span class="chevron" id="ch4">&#9654;</span>
+    </div>
+    <div class="step-body" id="body4">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте квадрат, который <strong>сам</strong> (без наведения мыши) плавно перебирает цвета: красный → жёлтый → зелёный → синий → фиолетовый. Анимация должна идти <strong>бесконечно</strong>.</div>
+
+      <div class="section-label">Ожидаемый результат</div>
+      <div class="preview">
+        <div class="p4-box"></div>
+      </div>
+      <div class="preview-note">квадрат должен сам менять цвет — смотрите превью несколько секунд</div>
+
+      <div class="section-label">HTML</div>
+<pre><span class="tag">&lt;div&gt;&lt;/div&gt;</span></pre>
+
+      <div class="section-label">CSS</div>
+<pre><span class="kw">@keyframes colorAnimation</span> {
+  <span class="attr">0%</span>   { <span class="attr">background</span>: <span class="val">red</span>; }
+  <span class="attr">25%</span>  { <span class="attr">background</span>: <span class="val">yellow</span>; }
+  <span class="attr">50%</span>  { <span class="attr">background</span>: <span class="val">green</span>; }
+  <span class="attr">75%</span>  { <span class="attr">background</span>: <span class="val">blue</span>; }
+  <span class="attr">100%</span> { <span class="attr">background</span>: <span class="val">violet</span>; }
+}
+<span class="kw">div</span> {
+  <span class="attr">width</span>: <span class="val">90px</span>;
+  <span class="attr">height</span>: <span class="val">90px</span>;
+  <span class="attr">border</span>: <span class="val">1px solid #333</span>;
+  <span class="attr">animation-name</span>: <span class="val">colorAnimation</span>;
+  <span class="attr">animation-duration</span>: <span class="val">4s</span>;
+  <span class="attr">animation-iteration-count</span>: <span class="val">infinite</span>;
+}</pre>
+
+      <div class="section-label">Краткая форма animation</div>
+<pre><span class="cm">/* animation: имя длительность функция повторы направление задержка заливка */</span>
+<span class="attr">animation</span>: <span class="val">colorAnimation 4s ease-in-out infinite alternate</span>;</pre>
+
+      <div class="hint"><strong>Полезно знать:</strong>
+        <ul style="margin-top:4px; padding-left:18px;">
+          <li><code>infinite</code> — бесконечное повторение;</li>
+          <li><code>alternate</code> — чередование «туда-обратно»;</li>
+          <li><code>forwards</code> — остановиться на последнем кадре;</li>
+          <li><code>from</code> и <code>to</code> — то же самое, что <code>0%</code> и <code>100%</code>.</li>
+        </ul>
+      </div>
+      <button class="done-btn" onclick="markDone(4)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 5 -->
+  <div class="step-card" id="card5">
+    <div class="step-head" onclick="toggle(5)">
+      <div class="step-num locked" id="sn5">5</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Самостоятельное задание</div>
+        <div class="step-sub">две фигуры + анимированный баннер</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb5">Заблокировано</span>
+      <span class="chevron" id="ch5">&#9654;</span>
+    </div>
+    <div class="step-body" id="body5">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте страницу, на которой:
+        <ul>
+          <li>есть <strong>две фигуры</strong> — одна обычная, вторая как-либо трансформирована (<code>rotate</code>, <code>scale</code>, <code>skew</code> — на ваше усмотрение);</li>
+          <li>у трансформированной фигуры должен быть <strong>плавный переход</strong> (<code>transition</code>) — например, при наведении мыши она крутится, меняет цвет, размер и т.д.;</li>
+          <li>на странице должен быть <strong>баннер с анимацией</strong> (<code>@keyframes</code>) — меняющийся фон, появляющийся текст, бегущая надпись — что угодно.</li>
+        </ul>
+        Можно сделать гротескно или красиво — главное, чтобы все три элемента были на странице.
+      </div>
+
+      <div class="section-label">Примерный вид результата <span style="color:#64748b; font-weight:400;">(наведите мышь на розовый квадрат)</span></div>
+      <div class="preview">
+        <div class="p5-wrap">
+          <div class="p5-row">
+            <div class="p5-plain"></div>
+            <div class="p5-tr"></div>
+          </div>
+          <div class="p5-banner">
+            <div class="p5-text p5-text1">Только в этом месяце</div>
+            <div class="p5-text p5-text2">Скидки до 20%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Подсказка — каркас CSS для баннера</div>
+<pre><span class="kw">@keyframes banner</span> {
+  <span class="attr">10%</span>  { <span class="attr">background</span>: <span class="val">#008978</span>; }
+  <span class="attr">40%</span>  { <span class="attr">background</span>: <span class="val">#34495e</span>; }
+  <span class="attr">80%</span>  { <span class="attr">background</span>: <span class="val">green</span>; }
+}
+<span class="kw">@keyframes text1</span> {
+  <span class="attr">10%</span> { <span class="attr">opacity</span>: <span class="val">1</span>; }
+  <span class="attr">40%</span> { <span class="attr">opacity</span>: <span class="val">0</span>; }
+}
+<span class="kw">@keyframes text2</span> {
+  <span class="attr">30%</span> { <span class="attr">opacity</span>: <span class="val">0</span>; }
+  <span class="attr">60%</span> { <span class="attr">opacity</span>: <span class="val">1</span>; }
+}
+
+<span class="kw">.banner</span> {
+  <span class="attr">width</span>: <span class="val">600px</span>;
+  <span class="attr">height</span>: <span class="val">120px</span>;
+  <span class="attr">position</span>: <span class="val">relative</span>;
+  <span class="attr">animation</span>: <span class="val">banner 6s infinite</span>;
+}
+<span class="kw">.text1, .text2</span> {
+  <span class="attr">position</span>: <span class="val">absolute</span>;
+  <span class="attr">width</span>: <span class="val">100%</span>;
+  <span class="attr">line-height</span>: <span class="val">120px</span>;
+  <span class="attr">text-align</span>: <span class="val">center</span>;
+  <span class="attr">color</span>: <span class="val">#fff</span>;
+  <span class="attr">font-size</span>: <span class="val">40px</span>;
+  <span class="attr">opacity</span>: <span class="val">0</span>;
+}
+<span class="kw">.text1</span> { <span class="attr">animation</span>: <span class="val">text1 6s infinite</span>; }
+<span class="kw">.text2</span> { <span class="attr">animation</span>: <span class="val">text2 6s infinite</span>; }</pre>
+
+      <div class="section-label">Подсказка — HTML структура баннера</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"banner"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"text1"</span><span class="tag">&gt;</span>Только в этом месяце<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"text2"</span><span class="tag">&gt;</span>Скидки по 20%<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="hint"><strong>Важно:</strong> на странице должны быть все три элемента — обычная фигура, трансформированная фигура (с плавным переходом), анимированный баннер.</div>
+      <button class="done-btn final" onclick="markDone(5)">Сдать работу ✓</button>
+    </div>
+  </div>
+
+  <div class="finish-banner" id="finish">
+    <h2>Работа выполнена!</h2>
+  </div>
+
+</div>
+
+<script>
+  var total = 5;
+  var done = 0;
+
+  function toggle(n) {
+    var body = document.getElementById('body' + n);
+    var ch = document.getElementById('ch' + n);
+    if (body.classList.contains('open')) {
+      body.classList.remove('open');
+      ch.classList.remove('open');
+    } else {
+      body.classList.add('open');
+      ch.classList.add('open');
+    }
+  }
+
+  function markDone(n) {
+    done++;
+    var sn = document.getElementById('sn' + n);
+    var sb = document.getElementById('sb' + n);
+    var card = document.getElementById('card' + n);
+    sn.className = 'step-num done';
+    sn.innerHTML = '&#10003;';
+    sb.className = 'step-badge badge-done';
+    sb.textContent = 'Выполнено';
+    card.classList.remove('is-active');
+    card.classList.add('is-done');
+    document.getElementById('body' + n).classList.remove('open');
+    document.getElementById('ch' + n).classList.remove('open');
+
+    var pct = Math.round(done / total * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-text').textContent = 'Выполнено: ' + done + ' из ' + total + ' заданий';
+    document.getElementById('prog-pct').textContent = pct + '%';
+
+    var next = n + 1;
+    if (next <= total) {
+      document.getElementById('sn' + next).className = 'step-num active';
+      document.getElementById('sb' + next).className = 'step-badge badge-active';
+      document.getElementById('sb' + next).textContent = 'Начать';
+      document.getElementById('card' + next).classList.add('is-active');
+      document.getElementById('body' + next).classList.add('open');
+      document.getElementById('ch' + next).classList.add('open');
+    }
+
+    if (done === total) {
+      document.getElementById('finish').style.display = 'block';
+      document.getElementById('prog-text').textContent = 'Все задания выполнены!';
+    }
+  }
+
+  document.querySelectorAll('pre, code').forEach(function(el) {
+    el.addEventListener('copy', function(e) {
+      e.preventDefault();
+      alert('Копирование подсказок отключено');
+    });
+
+    el.addEventListener('cut', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('selectstart', function(e) {
+      e.preventDefault();
+    });
+
+    el.addEventListener('mousedown', function(e) {
+      if (e.detail > 1) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    var selection = window.getSelection();
+    var node = selection && selection.anchorNode ? selection.anchorNode.parentElement : null;
+    var inCode = node && node.closest && node.closest('pre, code');
+
+    if (inCode && ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x' || e.key === 'a'))) {
+      e.preventDefault();
+      alert('Копирование подсказок отключено');
+    }
+  });
+</script>
+</body>
+</html>

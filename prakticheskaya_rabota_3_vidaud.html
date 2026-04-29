@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практическая работа — Видео и аудио в HTML5</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Segoe UI, Arial, sans-serif; background: #f4f5f7; color: #1a1a1a; min-height: 100vh; }
+
+    .page { max-width: 860px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    .top-header { background: #1a1a2e; color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 28px; }
+    .top-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .top-header p { font-size: 14px; color: #aaa; }
+
+    .progress-wrap { margin-bottom: 24px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
+    .progress-bar { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2563eb; border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+
+    .step-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s ease; }
+    .step-card.is-locked { opacity: 0.5; }
+    .step-card.is-done { border-color: #86efac; }
+    .step-card.is-active { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+
+    .step-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; }
+    .step-card.is-locked .step-head { cursor: not-allowed; }
+
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; }
+    .step-num.active { background: #2563eb; color: #fff; }
+    .step-num.done { background: #16a34a; color: #fff; }
+
+    .step-title-wrap { flex: 1; }
+    .step-title { font-size: 16px; font-weight: 600; }
+    .step-sub { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+    .step-badge { font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+    .badge-locked { background: #f1f5f9; color: #94a3b8; }
+    .badge-active { background: #dbeafe; color: #2563eb; }
+    .badge-done { background: #dcfce7; color: #16a34a; }
+
+    .chevron { color: #94a3b8; transition: transform 0.3s; font-size: 14px; }
+    .chevron.open { transform: rotate(90deg); }
+
+    .step-body { display: none; padding: 0 20px 20px; }
+    .step-body.open { display: block; }
+
+    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 600; margin: 16px 0 8px; }
+
+    .task-box { background: #f8fafc; border-left: 3px solid #2563eb; padding: 12px 16px; border-radius: 4px; font-size: 14px; line-height: 1.6; }
+
+    .preview-box { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; min-height: 80px; }
+
+    .preview-note { font-size: 12px; color: #64748b; margin-top: 8px; text-align: center; font-style: italic; }
+
+    pre {
+      background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 6px;
+      font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.6;
+      overflow-x: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    pre .tag   { color: #f87171; }
+    pre .attr  { color: #fbbf24; }
+    pre .str   { color: #86efac; }
+    pre .val   { color: #a5b4fc; }
+    pre .com   { color: #94a3b8; font-style: italic; }
+    pre .kw    { color: #60a5fa; }
+    pre .num   { color: #fda4af; }
+
+    .hint { background: #fef9c3; border: 1px solid #fde047; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-top: 12px; line-height: 1.5; }
+    .hint strong { color: #a16207; }
+
+    .done-btn { margin-top: 16px; background: #2563eb; color: #fff; border: none; padding: 10px 22px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .done-btn:hover { background: #1d4ed8; }
+    .done-btn.final { background: #16a34a; }
+    .done-btn.final:hover { background: #15803d; }
+
+    code {
+      background: #f1f5f9;
+      color: #be123c;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 12.5px;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .finish-banner { display: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border-radius: 12px; padding: 28px 32px; text-align: center; margin-top: 16px; }
+    .finish-banner h2 { font-size: 22px; margin-bottom: 8px; }
+    .finish-banner p { font-size: 14px; opacity: 0.9; }
+
+    /* Превью — собственный плеер */
+    .demo-player { width: 100%; max-width: 480px; }
+    .demo-player video { width: 100%; border-radius: 6px; background: #000; display: block; }
+    .demo-controls { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; }
+    .demo-btn { border: solid 1px #333; padding: 4px 12px; cursor: pointer; background: #fff; border-radius: 4px; font-size: 13px; }
+    .demo-btn:hover { background: #f1f5f9; }
+    .demo-time { font-family: Consolas, monospace; font-size: 13px; color: #475569; min-width: 42px; }
+    .demo-volume { flex: 1; max-width: 120px; }
+    .demo-hidden { display: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-header">
+    <h1>Практическая работа — Видео и аудио в HTML5</h1>
+    <p>Темы: тег &lt;video&gt;, тег &lt;audio&gt;, свой плеер на JS &nbsp;|&nbsp; Выполняйте шаги строго по порядку</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="prog-text">Выполнено: 0 из 5 заданий</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- ШАГ 1 -->
+  <div class="step-card is-active" id="card1">
+    <div class="step-head" onclick="toggle(1)">
+      <div class="step-num active" id="sn1">1</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Тег &lt;video&gt; со встроенными контролами</div>
+        <div class="step-sub">video, source, controls, несколько форматов</div>
+      </div>
+      <span class="step-badge badge-active" id="sb1">Начать</span>
+      <span class="chevron open" id="ch1">&#9654;</span>
+    </div>
+    <div class="step-body open" id="body1">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте HTML-файл и вставьте в него видео шириной 480 пикселей со встроенной панелью управления. Внутри тега &lt;video&gt; укажите два источника — формат MP4 и формат WebM — через тег &lt;source&gt;. Атрибут <code>controls</code> добавляет кнопки воспроизведения, паузы, громкости и полосу прокрутки.</div>
+
+      <div class="section-label">Превью результата</div>
+      <div class="preview-box">
+        <video width="480" controls preload="metadata" style="border-radius: 6px;">
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+          <source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg">
+          Ваш браузер не поддерживает видео.
+        </video>
+      </div>
+      <div class="preview-note">Браузер сам выбирает первый поддерживаемый формат из списка &lt;source&gt;</div>
+
+      <div class="section-label">Подсказка</div>
+<pre><span class="tag">&lt;video</span> <span class="attr">width</span>=<span class="str">"480"</span> <span class="attr">controls</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="str">"video.mp4"</span> <span class="attr">type</span>=<span class="str">"video/mp4"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="str">"video.webm"</span> <span class="attr">type</span>=<span class="str">"video/webm"</span><span class="tag">&gt;</span>
+  Ваш браузер не поддерживает видео.
+<span class="tag">&lt;/video&gt;</span></pre>
+
+      <div class="hint"><strong>Зачем несколько форматов:</strong> разные браузеры исторически поддерживали разные кодеки. MP4 (H.264) — самый универсальный, WebM и OGG — открытые форматы. Браузер берёт первый формат из списка, который умеет воспроизводить.</div>
+      <button class="done-btn" onclick="markDone(1)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 2 -->
+  <div class="step-card is-locked" id="card2">
+    <div class="step-head" onclick="toggle(2)">
+      <div class="step-num" id="sn2">2</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Тег &lt;audio&gt; и атрибуты медиа-тегов</div>
+        <div class="step-sub">audio, autoplay, loop, muted, preload</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb2">Заблокировано</span>
+      <span class="chevron" id="ch2">&#9654;</span>
+    </div>
+    <div class="step-body" id="body2">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Добавьте на страницу аудиозапись со встроенными контролами. Источник укажите в формате MP3. Затем добавьте второй ролик — видео с атрибутами <code>loop</code> (зацикленное), <code>muted</code> (без звука) и <code>poster</code> (картинка-заставка до начала воспроизведения).</div>
+
+      <div class="section-label">Превью — аудио</div>
+      <div class="preview-box">
+        <audio controls preload="metadata">
+          <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
+          <source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
+          Ваш браузер не поддерживает аудио.
+        </audio>
+      </div>
+
+      <div class="section-label">Превью — видео с poster и muted</div>
+      <div class="preview-box">
+        <video width="360" controls muted preload="none" poster="https://picsum.photos/seed/poster1/360/200">
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="preview-note">До нажатия Play отображается картинка-постер. Звук изначально отключён.</div>
+
+      <div class="section-label">Подсказка — аудио</div>
+<pre><span class="tag">&lt;audio</span> <span class="attr">controls</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="str">"sound.mp3"</span> <span class="attr">type</span>=<span class="str">"audio/mpeg"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="str">"sound.ogg"</span> <span class="attr">type</span>=<span class="str">"audio/ogg"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/audio&gt;</span></pre>
+
+      <div class="section-label">Подсказка — видео с атрибутами</div>
+<pre><span class="tag">&lt;video</span> <span class="attr">width</span>=<span class="str">"360"</span> <span class="attr">controls</span> <span class="attr">loop</span> <span class="attr">muted</span>
+       <span class="attr">poster</span>=<span class="str">"poster.jpg"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="str">"video.mp4"</span> <span class="attr">type</span>=<span class="str">"video/mp4"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/video&gt;</span></pre>
+
+      <div class="hint"><strong>Полезные атрибуты:</strong> <code>autoplay</code> — автозапуск (большинство браузеров блокируют автозапуск со звуком), <code>loop</code> — зацикленное воспроизведение, <code>muted</code> — без звука, <code>preload</code> — что загружать заранее (none / metadata / auto), <code>poster</code> — заглавная картинка для видео.</div>
+      <button class="done-btn" onclick="markDone(2)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 3 -->
+  <div class="step-card is-locked" id="card3">
+    <div class="step-head" onclick="toggle(3)">
+      <div class="step-num" id="sn3">3</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Свой плеер — кнопка Play/Pause через JS</div>
+        <div class="step-sub">addEventListener, методы play() и pause(), свойство paused</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb3">Заблокировано</span>
+      <span class="chevron" id="ch3">&#9654;</span>
+    </div>
+    <div class="step-body" id="body3">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Уберите у тега &lt;video&gt; атрибут <code>controls</code> и сделайте свою кнопку «Play». При нажатии на кнопку видео должно запускаться, при повторном нажатии — ставиться на паузу. Текст кнопки также меняется: «Play» → «Pause» → «Play». Используйте обработчик события <code>click</code> и проверку свойства <code>paused</code>.</div>
+
+      <div class="section-label">Превью — нажми Play</div>
+      <div class="preview-box">
+        <div class="demo-player">
+          <video id="demoVid3" preload="metadata">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+          </video>
+          <div class="demo-controls">
+            <button class="demo-btn" id="demoBtn3">Play</button>
+            <span style="font-size:12px; color:#64748b;">кнопка переключает воспроизведение</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Подсказка — HTML</div>
+<pre><span class="tag">&lt;video</span> <span class="attr">width</span>=<span class="str">"480"</span> <span class="attr">id</span>=<span class="str">"myVideo"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="attr">src</span>=<span class="str">"video.mp4"</span> <span class="attr">type</span>=<span class="str">"video/mp4"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/video&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">id</span>=<span class="str">"playBtn"</span><span class="tag">&gt;</span>Play<span class="tag">&lt;/button&gt;</span></pre>
+
+      <div class="section-label">Подсказка — JavaScript</div>
+<pre><span class="kw">var</span> video = <span class="kw">document</span>.getElementById(<span class="str">'myVideo'</span>);
+<span class="kw">var</span> btn   = <span class="kw">document</span>.getElementById(<span class="str">'playBtn'</span>);
+
+btn.addEventListener(<span class="str">'click'</span>, <span class="kw">function</span> () {
+  <span class="kw">if</span> (video.paused) {
+    video.play();
+  } <span class="kw">else</span> {
+    video.pause();
+  }
+});
+
+video.addEventListener(<span class="str">'play'</span>, <span class="kw">function</span> () {
+  btn.innerText = <span class="str">'Pause'</span>;
+});
+
+video.addEventListener(<span class="str">'pause'</span>, <span class="kw">function</span> () {
+  btn.innerText = <span class="str">'Play'</span>;
+});</pre>
+
+      <div class="hint"><strong>Логика:</strong> событие <code>play</code> срабатывает, когда видео началось, событие <code>pause</code> — когда остановилось. Меняем текст кнопки именно на этих событиях, а не сразу после клика — так надёжнее.</div>
+      <button class="done-btn" onclick="markDone(3)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 4 -->
+  <div class="step-card is-locked" id="card4">
+    <div class="step-head" onclick="toggle(4)">
+      <div class="step-num" id="sn4">4</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Громкость и таймер времени</div>
+        <div class="step-sub">input range, события timeupdate и canplaythrough</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb4">Заблокировано</span>
+      <span class="chevron" id="ch4">&#9654;</span>
+    </div>
+    <div class="step-body" id="body4">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Добавьте к плееру из шага 3 регулятор громкости (<code>&lt;input type="range"&gt;</code> со значениями от 0 до 1, шагом 0.1) и текстовый таймер, показывающий текущее время воспроизведения в формате <strong>ММ:СС</strong>. Громкость задаётся через свойство <code>video.volume</code>, текущее время — через <code>video.currentTime</code>, а событие <code>timeupdate</code> срабатывает несколько раз в секунду пока видео идёт.</div>
+
+      <div class="section-label">Превью</div>
+      <div class="preview-box">
+        <div class="demo-player">
+          <video id="demoVid4" preload="metadata">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+          </video>
+          <div class="demo-controls">
+            <button class="demo-btn" id="demoBtn4">Play</button>
+            <span class="demo-time" id="demoTime4">00:00</span>
+            <input type="range" min="0" max="1" step="0.1" value="0.5" class="demo-volume" id="demoVol4">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Подсказка — HTML</div>
+<pre><span class="tag">&lt;video</span> <span class="attr">id</span>=<span class="str">"myVideo"</span><span class="tag">&gt;</span> ... <span class="tag">&lt;/video&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">id</span>=<span class="str">"playBtn"</span><span class="tag">&gt;</span>Play<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;span</span> <span class="attr">id</span>=<span class="str">"timer"</span><span class="tag">&gt;</span>00:00<span class="tag">&lt;/span&gt;</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="str">"range"</span> <span class="attr">id</span>=<span class="str">"volume"</span>
+       <span class="attr">min</span>=<span class="str">"0"</span> <span class="attr">max</span>=<span class="str">"1"</span> <span class="attr">step</span>=<span class="str">"0.1"</span> <span class="attr">value</span>=<span class="str">"0.5"</span><span class="tag">&gt;</span></pre>
+
+      <div class="section-label">Подсказка — JavaScript</div>
+<pre><span class="kw">var</span> volume = <span class="kw">document</span>.getElementById(<span class="str">'volume'</span>);
+<span class="kw">var</span> timer  = <span class="kw">document</span>.getElementById(<span class="str">'timer'</span>);
+
+<span class="com">// меняем громкость при движении ползунка</span>
+volume.addEventListener(<span class="str">'input'</span>, <span class="kw">function</span> () {
+  video.volume = volume.value;
+});
+
+<span class="com">// обновляем таймер несколько раз в секунду</span>
+video.addEventListener(<span class="str">'timeupdate'</span>, <span class="kw">function</span> () {
+  <span class="kw">var</span> t = <span class="kw">Math</span>.floor(video.currentTime);
+  <span class="kw">var</span> m = <span class="kw">Math</span>.floor(t / <span class="num">60</span>);
+  <span class="kw">var</span> s = t % <span class="num">60</span>;
+  <span class="kw">if</span> (s &lt; <span class="num">10</span>) s = <span class="str">'0'</span> + s;
+  <span class="kw">if</span> (m &lt; <span class="num">10</span>) m = <span class="str">'0'</span> + m;
+  timer.innerText = m + <span class="str">':'</span> + s;
+});</pre>
+
+      <div class="hint"><strong>Подробнее про события:</strong> <code>timeupdate</code> — срабатывает 4–10 раз в секунду пока идёт воспроизведение. <code>canplaythrough</code> — срабатывает один раз, когда браузер уверен, что сможет проиграть видео без задержек (на нём удобно показывать панель управления, изначально скрытую). <code>ended</code> — срабатывает когда видео закончилось.</div>
+      <button class="done-btn" onclick="markDone(4)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 5 -->
+  <div class="step-card is-locked" id="card5">
+    <div class="step-head" onclick="toggle(5)">
+      <div class="step-num" id="sn5">5</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Самостоятельное задание — собственный плеер</div>
+        <div class="step-sub">соберите всё вместе</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb5">Заблокировано</span>
+      <span class="chevron" id="ch5">&#9654;</span>
+    </div>
+    <div class="step-body" id="body5">
+      <div class="section-label">Задание</div>
+      <div class="task-box">
+        Создайте HTML-страницу со <strong>своим видеоплеером</strong> на основе всего пройденного. Требования:<br><br>
+        1. Тег &lt;video&gt; <strong>без атрибута controls</strong> — встроенные контролы не используем<br>
+        2. Своя кнопка Play/Pause, которая меняет текст в зависимости от состояния<br>
+        3. Текущее время воспроизведения в формате ММ:СС<br>
+        4. Регулятор громкости (input range от 0 до 1)<br>
+        5. Панель управления изначально <strong>скрыта</strong> через CSS-класс <code>hidden</code> и появляется только когда сработало событие <code>canplaythrough</code><br>
+        6. По окончании видео (<code>ended</code>) перематывайте его на начало (<code>currentTime = 0</code>)
+      </div>
+
+      <div class="section-label">Превью — таким должен получиться результат</div>
+      <div class="preview-box">
+        <div class="demo-player">
+          <video id="demoVid5" preload="auto">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+          </video>
+          <div class="demo-controls demo-hidden" id="demoCtrl5">
+            <button class="demo-btn" id="demoBtn5">Play</button>
+            <span class="demo-time" id="demoTime5">00:00</span>
+            <input type="range" min="0" max="1" step="0.1" value="0.5" class="demo-volume" id="demoVol5">
+          </div>
+        </div>
+      </div>
+      <div class="preview-note">Панель управления появляется снизу когда видео готово к воспроизведению</div>
+
+      <div class="hint"><strong>Подсказка по структуре:</strong> заведите класс <code>.hidden { display: none; }</code> в стилях. Изначально повесьте этот класс на блок с контролами. В обработчике события <code>canplaythrough</code> снимайте его методом <code>classList.remove('hidden')</code>.</div>
+      <button class="done-btn final" onclick="markDone(5)">Завершить ✓</button>
+    </div>
+  </div>
+
+  <div class="finish-banner" id="finish">
+    <h2>Работа выполнена!</h2>
+    <p>Вы освоили теги &lt;video&gt; и &lt;audio&gt;, научились управлять воспроизведением через JavaScript и собрали свой плеер.</p>
+  </div>
+
+</div>
+
+<script>
+  var totalSteps = 5;
+  var doneSteps = 0;
+  var stepStates = { 1: 'active', 2: 'locked', 3: 'locked', 4: 'locked', 5: 'locked' };
+
+  function toggle(n) {
+    if (stepStates[n] === 'locked') return;
+    var body = document.getElementById('body' + n);
+    var ch = document.getElementById('ch' + n);
+    body.classList.toggle('open');
+    ch.classList.toggle('open');
+  }
+
+  function markDone(n) {
+    if (stepStates[n] === 'done') return;
+    stepStates[n] = 'done';
+    doneSteps++;
+
+    document.getElementById('card' + n).classList.remove('is-active');
+    document.getElementById('card' + n).classList.add('is-done');
+    document.getElementById('sn' + n).classList.remove('active');
+    document.getElementById('sn' + n).classList.add('done');
+    document.getElementById('sn' + n).innerText = '✓';
+    var sb = document.getElementById('sb' + n);
+    sb.classList.remove('badge-active');
+    sb.classList.add('badge-done');
+    sb.innerText = 'Готово';
+
+    document.getElementById('body' + n).classList.remove('open');
+    document.getElementById('ch' + n).classList.remove('open');
+
+    var pct = Math.round((doneSteps / totalSteps) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-text').innerText = 'Выполнено: ' + doneSteps + ' из ' + totalSteps + ' заданий';
+    document.getElementById('prog-pct').innerText = pct + '%';
+
+    var next = n + 1;
+    if (next <= totalSteps) {
+      stepStates[next] = 'active';
+      var card = document.getElementById('card' + next);
+      card.classList.remove('is-locked');
+      card.classList.add('is-active');
+      var sNum = document.getElementById('sn' + next);
+      sNum.classList.add('active');
+      var sBadge = document.getElementById('sb' + next);
+      sBadge.classList.remove('badge-locked');
+      sBadge.classList.add('badge-active');
+      sBadge.innerText = 'Начать';
+      document.getElementById('body' + next).classList.add('open');
+      document.getElementById('ch' + next).classList.add('open');
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      document.getElementById('finish').style.display = 'block';
+      document.getElementById('finish').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  // Превью шага 3 — Play/Pause
+  (function () {
+    var v = document.getElementById('demoVid3');
+    var b = document.getElementById('demoBtn3');
+    b.addEventListener('click', function () {
+      if (v.paused) v.play(); else v.pause();
+    });
+    v.addEventListener('play',  function () { b.innerText = 'Pause'; });
+    v.addEventListener('pause', function () { b.innerText = 'Play';  });
+  })();
+
+  // Превью шага 4 — громкость и время
+  (function () {
+    var v = document.getElementById('demoVid4');
+    var b = document.getElementById('demoBtn4');
+    var t = document.getElementById('demoTime4');
+    var vol = document.getElementById('demoVol4');
+    v.volume = vol.value;
+    b.addEventListener('click', function () {
+      if (v.paused) v.play(); else v.pause();
+    });
+    v.addEventListener('play',  function () { b.innerText = 'Pause'; });
+    v.addEventListener('pause', function () { b.innerText = 'Play';  });
+    vol.addEventListener('input', function () { v.volume = vol.value; });
+    v.addEventListener('timeupdate', function () {
+      var s = Math.floor(v.currentTime);
+      var m = Math.floor(s / 60);
+      s = s % 60;
+      if (s < 10) s = '0' + s;
+      if (m < 10) m = '0' + m;
+      t.innerText = m + ':' + s;
+    });
+    v.addEventListener('ended', function () { v.currentTime = 0; });
+  })();
+
+  // Превью шага 5 — полный плеер с canplaythrough
+  (function () {
+    var v = document.getElementById('demoVid5');
+    var ctrl = document.getElementById('demoCtrl5');
+    var b = document.getElementById('demoBtn5');
+    var t = document.getElementById('demoTime5');
+    var vol = document.getElementById('demoVol5');
+
+    v.addEventListener('canplaythrough', function () {
+      ctrl.classList.remove('demo-hidden');
+      v.volume = vol.value;
+    });
+    b.addEventListener('click', function () {
+      if (v.paused) v.play(); else v.pause();
+    });
+    v.addEventListener('play',  function () { b.innerText = 'Pause'; });
+    v.addEventListener('pause', function () { b.innerText = 'Play';  });
+    vol.addEventListener('input', function () { v.volume = vol.value; });
+    v.addEventListener('timeupdate', function () {
+      var s = Math.floor(v.currentTime);
+      var m = Math.floor(s / 60);
+      s = s % 60;
+      if (s < 10) s = '0' + s;
+      if (m < 10) m = '0' + m;
+      t.innerText = m + ':' + s;
+    });
+    v.addEventListener('ended', function () { v.currentTime = 0; });
+  })();
+
+  // Блокировка копирования из подсказок
+  document.addEventListener('copy', function (e) {
+    var sel = window.getSelection();
+    var node = sel && sel.anchorNode ? sel.anchorNode.parentElement : null;
+    if (node && node.closest && node.closest('pre, code')) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    var sel = window.getSelection();
+    var node = sel && sel.anchorNode ? sel.anchorNode.parentElement : null;
+    var inCode = node && node.closest && node.closest('pre, code');
+    if (inCode && (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x' || e.key === 'a')) {
+      e.preventDefault();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Практическая работа — CSS Grid Layout</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Segoe UI, Arial, sans-serif; background: #f4f5f7; color: #1a1a1a; min-height: 100vh; }
+
+    .page { max-width: 880px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    .top-header { background: #1a1a2e; color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 28px; }
+    .top-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .top-header p { font-size: 14px; color: #aaa; }
+
+    .progress-wrap { margin-bottom: 24px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
+    .progress-bar { height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2563eb; border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+
+    .step-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s ease; }
+    .step-card.is-locked { opacity: 0.5; }
+    .step-card.is-done { border-color: #86efac; }
+    .step-card.is-active { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+
+    .step-head { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; }
+    .step-card.is-locked .step-head { cursor: not-allowed; }
+
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; }
+    .step-num.active { background: #2563eb; color: #fff; }
+    .step-num.done { background: #16a34a; color: #fff; }
+
+    .step-title-wrap { flex: 1; }
+    .step-title { font-size: 16px; font-weight: 600; }
+    .step-sub { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+    .step-badge { font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+    .badge-locked { background: #f1f5f9; color: #94a3b8; }
+    .badge-active { background: #dbeafe; color: #2563eb; }
+    .badge-done { background: #dcfce7; color: #16a34a; }
+
+    .chevron { color: #94a3b8; transition: transform 0.3s; font-size: 14px; }
+    .chevron.open { transform: rotate(90deg); }
+
+    .step-body { display: none; padding: 0 20px 20px; }
+    .step-body.open { display: block; }
+
+    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 600; margin: 16px 0 8px; }
+
+    .task-box { background: #f8fafc; border-left: 3px solid #2563eb; padding: 12px 16px; border-radius: 4px; font-size: 14px; line-height: 1.6; }
+
+    .preview-box { background: #fafafa; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; min-height: 80px; }
+
+    .preview-note { font-size: 12px; color: #64748b; margin-top: 8px; text-align: center; font-style: italic; }
+
+    pre {
+      background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 6px;
+      font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.6;
+      overflow-x: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    pre .tag   { color: #f87171; }
+    pre .attr  { color: #fbbf24; }
+    pre .str   { color: #86efac; }
+    pre .val   { color: #a5b4fc; }
+    pre .com   { color: #94a3b8; font-style: italic; }
+    pre .kw    { color: #60a5fa; }
+    pre .num   { color: #fda4af; }
+    pre .sel   { color: #fde047; }
+    pre .prop  { color: #93c5fd; }
+
+    .hint { background: #fef9c3; border: 1px solid #fde047; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-top: 12px; line-height: 1.5; }
+    .hint strong { color: #a16207; }
+
+    .done-btn { margin-top: 16px; background: #2563eb; color: #fff; border: none; padding: 10px 22px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .done-btn:hover { background: #1d4ed8; }
+    .done-btn.final { background: #16a34a; }
+    .done-btn.final:hover { background: #15803d; }
+
+    code {
+      background: #f1f5f9;
+      color: #be123c;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 12.5px;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .finish-banner { display: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border-radius: 12px; padding: 28px 32px; text-align: center; margin-top: 16px; }
+    .finish-banner h2 { font-size: 22px; margin-bottom: 8px; }
+    .finish-banner p { font-size: 14px; opacity: 0.9; }
+
+    /* ===== Стили живых превью грида ===== */
+    .gi { color: #fff; text-align: center; padding: 1em; font-size: 14px; border-radius: 3px; }
+    .c1 { background: #675BA7; }
+    .c2 { background: #9BC850; }
+    .c3 { background: #A62E5C; }
+    .c4 { background: #2A9FBC; }
+    .c5 { background: #4e342e; }
+
+    /* шаг 1 */
+    .pv1 {
+      border: solid 2px #000;
+      display: grid;
+      grid-template-columns: 8em 8em 8em;
+      grid-template-rows: 4em 4em;
+      width: max-content;
+      margin: 0 auto;
+    }
+
+    /* шаг 2 */
+    .pv2 {
+      border: solid 2px #000;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-rows: repeat(2, 4em);
+      gap: 6px;
+    }
+
+    /* шаг 3 */
+    .pv3 {
+      border: solid 2px #000;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 4em);
+      gap: 6px;
+    }
+    .pv3 .big {
+      grid-column: 1 / span 2;
+      grid-row: 1 / span 2;
+    }
+    .pv3 .wide {
+      grid-column: 3 / 5;
+    }
+
+    /* шаг 4 */
+    .pv4 {
+      display: grid;
+      grid-template-areas:
+        "header header header"
+        "sidebar content content"
+        "footer footer footer";
+      grid-template-columns: 120px 1fr 1fr;
+      grid-template-rows: 50px 130px 40px;
+      gap: 6px;
+      border: solid 2px #000;
+    }
+    .pv4 .h  { grid-area: header;  background: #263238; }
+    .pv4 .s  { grid-area: sidebar; background: #455a64; }
+    .pv4 .ct { grid-area: content; background: #37474f; }
+    .pv4 .f  { grid-area: footer;  background: #263238; }
+
+    /* шаг 5 — итоговый макет */
+    .pv5 {
+      display: grid;
+      grid-template-areas:
+        "header  header  header"
+        "menu    main    aside"
+        "footer  footer  footer";
+      grid-template-columns: 130px 1fr 130px;
+      grid-template-rows: 50px 180px 40px;
+      gap: 6px;
+      border: solid 2px #000;
+    }
+    .pv5 .h5 { grid-area: header; background: #675BA7; }
+    .pv5 .m5 { grid-area: menu;   background: #2A9FBC; }
+    .pv5 .c5b { grid-area: main;  background: #9BC850; }
+    .pv5 .a5 { grid-area: aside;  background: #A62E5C; }
+    .pv5 .f5 { grid-area: footer; background: #4e342e; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-header">
+    <h1>Практическая работа — CSS Grid Layout</h1>
+    <p>Темы: display: grid, grid-template, fr, gap, grid-area &nbsp;|&nbsp; Выполняйте шаги строго по порядку</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="prog-text">Выполнено: 0 из 5 заданий</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- ШАГ 1 -->
+  <div class="step-card is-active" id="card1">
+    <div class="step-head" onclick="toggle(1)">
+      <div class="step-num active" id="sn1">1</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Основы Grid — display: grid и шаблон сетки</div>
+        <div class="step-sub">grid-template-columns, grid-template-rows</div>
+      </div>
+      <span class="step-badge badge-active" id="sb1">Начать</span>
+      <span class="chevron open" id="ch1">&#9654;</span>
+    </div>
+    <div class="step-body open" id="body1">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте HTML-файл с контейнером &lt;div class="grid-container"&gt;, внутри которого расположите 6 блоков с классом <code>grid-item</code> и текстом «Grid Item 1» — «Grid Item 6». Контейнеру задайте <code>display: grid</code>, три столбца по 8em и две строки по 4em через свойства <code>grid-template-columns</code> и <code>grid-template-rows</code>. Каждому блоку — свой цвет фона из палитры.</div>
+
+      <div class="section-label">Превью результата</div>
+      <div class="preview-box">
+        <div class="pv1">
+          <div class="gi c1">Grid Item 1</div>
+          <div class="gi c2">Grid Item 2</div>
+          <div class="gi c3">Grid Item 3</div>
+          <div class="gi c4">Grid Item 4</div>
+          <div class="gi c1">Grid Item 5</div>
+          <div class="gi c2">Grid Item 6</div>
+        </div>
+      </div>
+      <div class="preview-note">Сетка 3×2 — три столбца по 8em, две строки по 4em</div>
+
+      <div class="section-label">Подсказка — CSS</div>
+<pre><span class="sel">.grid-container</span> {
+  <span class="prop">border</span>: <span class="val">solid 2px #000</span>;
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">8em 8em 8em</span>;
+  <span class="prop">grid-template-rows</span>: <span class="val">4em 4em</span>;
+}
+<span class="sel">.grid-item</span> {
+  <span class="prop">text-align</span>: <span class="val">center</span>;
+  <span class="prop">padding</span>: <span class="val">1em</span>;
+  <span class="prop">color</span>: <span class="val">white</span>;
+}
+<span class="sel">.c1</span> { <span class="prop">background</span>: <span class="val">#675BA7</span>; }
+<span class="sel">.c2</span> { <span class="prop">background</span>: <span class="val">#9BC850</span>; }
+<span class="sel">.c3</span> { <span class="prop">background</span>: <span class="val">#A62E5C</span>; }
+<span class="sel">.c4</span> { <span class="prop">background</span>: <span class="val">#2A9FBC</span>; }</pre>
+
+      <div class="section-label">Подсказка — HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-item c1"</span><span class="tag">&gt;</span>Grid Item 1<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-item c2"</span><span class="tag">&gt;</span>Grid Item 2<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-item c3"</span><span class="tag">&gt;</span>Grid Item 3<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-item c4"</span><span class="tag">&gt;</span>Grid Item 4<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-item c1"</span><span class="tag">&gt;</span>Grid Item 5<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-item c2"</span><span class="tag">&gt;</span>Grid Item 6<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="hint"><strong>Как это работает:</strong> <code>display: grid</code> превращает контейнер в сетку. <code>grid-template-columns: 8em 8em 8em</code> создаёт три столбца, <code>grid-template-rows: 4em 4em</code> — две строки. Браузер сам раскладывает блоки по ячейкам слева направо, сверху вниз.</div>
+      <button class="done-btn" onclick="markDone(1)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 2 -->
+  <div class="step-card is-locked" id="card2">
+    <div class="step-head" onclick="toggle(2)">
+      <div class="step-num" id="sn2">2</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Функция repeat() и единицы fr</div>
+        <div class="step-sub">repeat(n, размер), доли свободного пространства</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb2">Заблокировано</span>
+      <span class="chevron" id="ch2">&#9654;</span>
+    </div>
+    <div class="step-body" id="body2">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Перепишите сетку из шага 1 так, чтобы строки задавались через функцию <code>repeat(2, 4em)</code>, а столбцы — через гибкие единицы <code>1fr 2fr 1fr</code>. Единица <code>fr</code> делит доступную ширину между столбцами пропорционально: средний столбец будет в 2 раза шире крайних. Добавьте промежутки между ячейками через свойство <code>gap</code>.</div>
+
+      <div class="section-label">Превью результата</div>
+      <div class="preview-box">
+        <div class="pv2">
+          <div class="gi c1">Grid Item 1</div>
+          <div class="gi c2">Grid Item 2</div>
+          <div class="gi c3">Grid Item 3</div>
+          <div class="gi c4">Grid Item 4</div>
+          <div class="gi c1">Grid Item 5</div>
+          <div class="gi c2">Grid Item 6</div>
+        </div>
+      </div>
+      <div class="preview-note">Средний столбец вдвое шире крайних, между ячейками отступ 6px</div>
+
+      <div class="section-label">Подсказка — CSS</div>
+<pre><span class="sel">.grid-container</span> {
+  <span class="prop">border</span>: <span class="val">solid 2px #000</span>;
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">1fr 2fr 1fr</span>;
+  <span class="prop">grid-template-rows</span>: <span class="val">repeat(2, 4em)</span>;
+  <span class="prop">gap</span>: <span class="val">6px</span>;
+}</pre>
+
+      <div class="hint"><strong>Формула для fr:</strong> доля столбца = <code>его_fr × доступное_пространство / сумма_всех_fr</code>. При <code>1fr 2fr 1fr</code> сумма = 4, средний столбец получает 2/4 ширины, крайние — по 1/4. Свойство <code>repeat(2, 4em)</code> — короткая запись для <code>4em 4em</code>. Можно повторять и более сложные шаблоны: <code>repeat(2, 7em 8em)</code> даст четыре столбца 7em, 8em, 7em, 8em.</div>
+
+      <div class="hint"><strong>Про gap:</strong> единое свойство <code>gap</code> задаёт промежутки сразу по обеим осям. Можно указать два значения — <code>gap: 10px 20px</code> (между строками 10px, между столбцами 20px). Раньше эти свойства назывались <code>grid-gap</code>, <code>grid-row-gap</code>, <code>grid-column-gap</code> — все три варианта работают.</div>
+      <button class="done-btn" onclick="markDone(2)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 3 -->
+  <div class="step-card is-locked" id="card3">
+    <div class="step-head" onclick="toggle(3)">
+      <div class="step-num" id="sn3">3</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Размещение элементов на линиях</div>
+        <div class="step-sub">grid-column, grid-row, span</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb3">Заблокировано</span>
+      <span class="chevron" id="ch3">&#9654;</span>
+    </div>
+    <div class="step-body" id="body3">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Создайте сетку 4×3 (четыре столбца, три строки) с шестью блоками. Сделайте первый блок большим — он должен занимать первые две строки и два первых столбца. Третий блок растяните на два столбца в первой строке. Используйте свойства <code>grid-column</code> и <code>grid-row</code> с ключевым словом <code>span</code>.</div>
+
+      <div class="section-label">Превью результата</div>
+      <div class="preview-box">
+        <div class="pv3">
+          <div class="gi c1 big">Grid Item 1</div>
+          <div class="gi c2">Grid Item 2</div>
+          <div class="gi c3 wide">Grid Item 3</div>
+          <div class="gi c4">Grid Item 4</div>
+          <div class="gi c5">Grid Item 5</div>
+          <div class="gi c2">Grid Item 6</div>
+        </div>
+      </div>
+      <div class="preview-note">Первый блок занимает 2×2 ячейки, третий — две ячейки в строку</div>
+
+      <div class="section-label">Подсказка — CSS</div>
+<pre><span class="sel">.grid-container</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">repeat(4, 1fr)</span>;
+  <span class="prop">grid-template-rows</span>: <span class="val">repeat(3, 4em)</span>;
+  <span class="prop">gap</span>: <span class="val">6px</span>;
+  <span class="prop">border</span>: <span class="val">solid 2px #000</span>;
+}
+<span class="sel">.big</span> {
+  <span class="prop">grid-column</span>: <span class="val">1 / span 2</span>;
+  <span class="prop">grid-row</span>: <span class="val">1 / span 2</span>;
+}
+<span class="sel">.wide</span> {
+  <span class="prop">grid-column</span>: <span class="val">3 / 5</span>;
+}</pre>
+
+      <div class="hint"><strong>Линии и span:</strong> grid-линии — это разделители между ячейками. У сетки из 4 столбцов линий 5: от 1 до 5. <code>grid-column: 1 / 3</code> значит «занять от линии 1 до линии 3», то есть 2 ячейки. То же самое можно записать как <code>grid-column: 1 / span 2</code> — «начать с линии 1 и растянуться на 2 ячейки». Оба варианта дают одинаковый результат.</div>
+
+      <div class="hint"><strong>Полные и короткие формы:</strong>
+        <br>• <code>grid-column-start: 1; grid-column-end: 3;</code> — длинная форма
+        <br>• <code>grid-column: 1 / 3</code> — короткая через слэш
+        <br>• <code>grid-column: 1 / span 2</code> — через span
+        <br>• <code>grid-area: 1 / 1 / 3 / 3</code> — всё сразу: row-start / col-start / row-end / col-end</div>
+      <button class="done-btn" onclick="markDone(3)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 4 -->
+  <div class="step-card is-locked" id="card4">
+    <div class="step-head" onclick="toggle(4)">
+      <div class="step-num" id="sn4">4</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Именованные области — grid-template-areas</div>
+        <div class="step-sub">grid-template-areas, grid-area для разметки страницы</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb4">Заблокировано</span>
+      <span class="chevron" id="ch4">&#9654;</span>
+    </div>
+    <div class="step-body" id="body4">
+      <div class="section-label">Задание</div>
+      <div class="task-box">Сделайте макет страницы с тремя зонами: шапка наверху во всю ширину, слева сайдбар, справа основное содержимое, снизу подвал во всю ширину. Используйте <code>grid-template-areas</code> для именования зон и <code>grid-area</code> для привязки элементов.</div>
+
+      <div class="section-label">Превью результата</div>
+      <div class="preview-box">
+        <div class="pv4">
+          <div class="gi h">Header</div>
+          <div class="gi s">Sidebar</div>
+          <div class="gi ct">Content</div>
+          <div class="gi f">Footer</div>
+        </div>
+      </div>
+
+      <div class="section-label">Подсказка — CSS</div>
+<pre><span class="sel">.grid-container</span> {
+  <span class="prop">display</span>: <span class="val">grid</span>;
+  <span class="prop">grid-template-areas</span>:
+    <span class="str">"header  header  header"</span>
+    <span class="str">"sidebar content content"</span>
+    <span class="str">"footer  footer  footer"</span>;
+  <span class="prop">grid-template-columns</span>: <span class="val">120px 1fr 1fr</span>;
+  <span class="prop">grid-template-rows</span>: <span class="val">50px 130px 40px</span>;
+  <span class="prop">gap</span>: <span class="val">6px</span>;
+  <span class="prop">border</span>: <span class="val">solid 2px #000</span>;
+}
+<span class="sel">.header</span>  { <span class="prop">grid-area</span>: <span class="val">header</span>;  <span class="prop">background</span>: <span class="val">#263238</span>; }
+<span class="sel">.sidebar</span> { <span class="prop">grid-area</span>: <span class="val">sidebar</span>; <span class="prop">background</span>: <span class="val">#455a64</span>; }
+<span class="sel">.content</span> { <span class="prop">grid-area</span>: <span class="val">content</span>; <span class="prop">background</span>: <span class="val">#37474f</span>; }
+<span class="sel">.footer</span>  { <span class="prop">grid-area</span>: <span class="val">footer</span>;  <span class="prop">background</span>: <span class="val">#263238</span>; }</pre>
+
+      <div class="section-label">Подсказка — HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"grid-container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"header"</span><span class="tag">&gt;</span>Header<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"sidebar"</span><span class="tag">&gt;</span>Sidebar<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"content"</span><span class="tag">&gt;</span>Content<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"footer"</span><span class="tag">&gt;</span>Footer<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
+      <div class="hint"><strong>Как читать grid-template-areas:</strong> каждая строка в кавычках — это одна строка сетки. Слова — имена зон. Повторение имени растягивает зону на соседние ячейки. Чтобы оставить ячейку пустой — пишут точку <code>.</code> вместо имени.</div>
+      <button class="done-btn" onclick="markDone(4)">Готово ✓</button>
+    </div>
+  </div>
+
+  <!-- ШАГ 5 -->
+  <div class="step-card is-locked" id="card5">
+    <div class="step-head" onclick="toggle(5)">
+      <div class="step-num" id="sn5">5</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Самостоятельное задание — макет страницы</div>
+        <div class="step-sub">соберите типовой шаблон сайта</div>
+      </div>
+      <span class="step-badge badge-locked" id="sb5">Заблокировано</span>
+      <span class="chevron" id="ch5">&#9654;</span>
+    </div>
+    <div class="step-body" id="body5">
+      <div class="section-label">Задание</div>
+      <div class="task-box">
+        Создайте HTML-страницу с типовым макетом сайта на CSS Grid. Требования:<br><br>
+        1. <strong>Пять зон:</strong> Header (шапка), Menu (меню слева), Main (основное содержимое в центре), Aside (правая колонка), Footer (подвал)<br>
+        2. Header и Footer растянуты на всю ширину страницы<br>
+        3. В средней строке три колонки: Menu, Main, Aside. Menu и Aside фиксированной ширины (130px), Main — гибкий (1fr)<br>
+        4. Используйте <code>grid-template-areas</code> для разметки зон<br>
+        5. Промежуток между ячейками 6px через <code>gap</code><br>
+        6. Каждой зоне задайте свой цвет фона из палитры
+      </div>
+
+      <div class="section-label">Превью — таким должен получиться результат</div>
+      <div class="preview-box">
+        <div class="pv5">
+          <div class="gi h5">Header</div>
+          <div class="gi m5">Menu</div>
+          <div class="gi c5b">Main</div>
+          <div class="gi a5">Aside</div>
+          <div class="gi f5">Footer</div>
+        </div>
+      </div>
+
+      <div class="hint"><strong>Подсказка по структуре:</strong> схема из трёх строк в <code>grid-template-areas</code>. Первая строка — три одинаковых имени для растянутой шапки. Вторая — три разных имени для трёх колонок. Третья — снова три одинаковых имени для подвала.</div>
+      <button class="done-btn final" onclick="markDone(5)">Завершить ✓</button>
+    </div>
+  </div>
+
+  <div class="finish-banner" id="finish">
+    <h2>Работа выполнена!</h2>
+    <p>Вы освоили CSS Grid Layout — шаблоны сеток, единицы fr, размещение элементов на линиях и именованные области.</p>
+  </div>
+
+</div>
+
+<script>
+  var totalSteps = 5;
+  var doneSteps = 0;
+  var stepStates = { 1: 'active', 2: 'locked', 3: 'locked', 4: 'locked', 5: 'locked' };
+
+  function toggle(n) {
+    if (stepStates[n] === 'locked') return;
+    var body = document.getElementById('body' + n);
+    var ch = document.getElementById('ch' + n);
+    body.classList.toggle('open');
+    ch.classList.toggle('open');
+  }
+
+  function markDone(n) {
+    if (stepStates[n] === 'done') return;
+    stepStates[n] = 'done';
+    doneSteps++;
+
+    document.getElementById('card' + n).classList.remove('is-active');
+    document.getElementById('card' + n).classList.add('is-done');
+    document.getElementById('sn' + n).classList.remove('active');
+    document.getElementById('sn' + n).classList.add('done');
+    document.getElementById('sn' + n).innerText = '✓';
+    var sb = document.getElementById('sb' + n);
+    sb.classList.remove('badge-active');
+    sb.classList.add('badge-done');
+    sb.innerText = 'Готово';
+
+    document.getElementById('body' + n).classList.remove('open');
+    document.getElementById('ch' + n).classList.remove('open');
+
+    var pct = Math.round((doneSteps / totalSteps) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-text').innerText = 'Выполнено: ' + doneSteps + ' из ' + totalSteps + ' заданий';
+    document.getElementById('prog-pct').innerText = pct + '%';
+
+    var next = n + 1;
+    if (next <= totalSteps) {
+      stepStates[next] = 'active';
+      var card = document.getElementById('card' + next);
+      card.classList.remove('is-locked');
+      card.classList.add('is-active');
+      var sNum = document.getElementById('sn' + next);
+      sNum.classList.add('active');
+      var sBadge = document.getElementById('sb' + next);
+      sBadge.classList.remove('badge-locked');
+      sBadge.classList.add('badge-active');
+      sBadge.innerText = 'Начать';
+      document.getElementById('body' + next).classList.add('open');
+      document.getElementById('ch' + next).classList.add('open');
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      document.getElementById('finish').style.display = 'block';
+      document.getElementById('finish').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  // Блокировка копирования из подсказок
+  document.addEventListener('copy', function (e) {
+    var sel = window.getSelection();
+    var node = sel && sel.anchorNode ? sel.anchorNode.parentElement : null;
+    if (node && node.closest && node.closest('pre, code')) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    var sel = window.getSelection();
+    var node = sel && sel.anchorNode ? sel.anchorNode.parentElement : null;
+    var inCode = node && node.closest && node.closest('pre, code');
+    if (inCode && (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x' || e.key === 'a')) {
+      e.preventDefault();
+    }
+  });
+</script>
+</body>
+</html>

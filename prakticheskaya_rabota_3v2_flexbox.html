@@ -271,11 +271,22 @@
 <span class="sel">.flex-container</span> {
   <span class="prop">flex-flow</span>: <span class="val">row wrap</span>;
 }
-<span class="com">/* изменение порядка */</span>
+<span class="com">/* изменение порядка — классы вешаются на ЭЛЕМЕНТЫ */</span>
 <span class="sel">.group1</span> { <span class="prop">order</span>: <span class="val">-1</span>; }  <span class="com">/* в начало */</span>
 <span class="sel">.group2</span> { <span class="prop">order</span>: <span class="val">1</span>; }   <span class="com">/* в конец */</span></pre>
 
+      <div class="section-label">Подсказка — HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c1"</span><span class="tag">&gt;</span>Item 1<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c2 group2"</span><span class="tag">&gt;</span>Item 2<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c3 group2"</span><span class="tag">&gt;</span>Item 3<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c4"</span><span class="tag">&gt;</span>Item 4<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c5 group1"</span><span class="tag">&gt;</span>Item 5<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
       <div class="hint"><strong>Про значения:</strong> <code>flex-wrap</code> бывает <code>nowrap</code> (без переноса, по умолчанию), <code>wrap</code> (перенос), <code>wrap-reverse</code> (перенос в обратном порядке). <code>flex-flow</code> — короткая запись сразу для direction и wrap: <code>flex-flow: row wrap</code>. У свойства <code>order</code> по умолчанию значение 0 — чем меньше число, тем раньше элемент.</div>
+
+      <div class="hint"><strong>Важно:</strong> <code>order</code> вешается на <strong>flex-элементы</strong> (классы <code>group1</code>, <code>group2</code> на блоках внутри контейнера), а не на сам контейнер. Контейнер только переключается в <code>display: flex</code> — менять порядок умеют лишь его прямые дети.</div>
       <button class="done-btn" onclick="markDone(2)">Готово ✓</button>
     </div>
   </div>
@@ -340,6 +351,13 @@
 <span class="sel">.item2</span> { <span class="prop">align-self</span>: <span class="val">flex-start</span>; }
 <span class="sel">.item3</span> { <span class="prop">align-self</span>: <span class="val">flex-end</span>; }</pre>
 
+      <div class="section-label">Подсказка — HTML (третий контейнер)</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"container3"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c1"</span><span class="tag">&gt;</span>stretch<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c2 item2"</span><span class="tag">&gt;</span>flex-start<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c3 item3"</span><span class="tag">&gt;</span>flex-end<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+
       <div class="hint"><strong>Две оси:</strong> <code>justify-content</code> работает вдоль <strong>главной</strong> оси (куда смотрит flex-direction), а <code>align-items</code> — вдоль <strong>поперечной</strong> (перпендикулярной). Значения justify-content: <code>flex-start</code>, <code>flex-end</code>, <code>center</code>, <code>space-between</code>, <code>space-around</code>. Значения align-items: <code>stretch</code> (по умолчанию, тянет на всю высоту), <code>flex-start</code>, <code>flex-end</code>, <code>center</code>, <code>baseline</code>. <code>align-self</code> переопределяет align-items для конкретного блока.</div>
       <button class="done-btn" onclick="markDone(3)">Готово ✓</button>
     </div>
@@ -380,6 +398,13 @@
 <span class="sel">.item1</span> { <span class="prop">flex</span>: <span class="val">0 0 auto</span>; }   <span class="com">/* = flex: none */</span>
 <span class="sel">.item2</span> { <span class="prop">flex</span>: <span class="val">1 1 auto</span>; }   <span class="com">/* = flex: auto */</span>
 <span class="sel">.item3</span> { <span class="prop">flex</span>: <span class="val">0 1 auto</span>; }   <span class="com">/* = flex: initial */</span></pre>
+
+      <div class="section-label">Подсказка — HTML</div>
+<pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c1 item1"</span><span class="tag">&gt;</span>grow: 0<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c2 item2"</span><span class="tag">&gt;</span>grow: 1<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"flex-item c3 item3"</span><span class="tag">&gt;</span>grow: 2<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
 
       <div class="hint"><strong>Что значит каждое свойство:</strong>
         <br>• <code>flex-basis</code> — начальный размер блока до распределения места
@@ -424,6 +449,17 @@
         </div>
       </div>
       <div class="preview-note">На узком экране main станет столбиком, и Navigation окажется сверху</div>
+
+      <div class="section-label">Подсказка — HTML-каркас (CSS пишете сами)</div>
+<pre><span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;header&gt;</span>Header<span class="tag">&lt;/header&gt;</span>
+  <span class="tag">&lt;main&gt;</span>
+    <span class="tag">&lt;article&gt;</span>Основное содержимое<span class="tag">&lt;/article&gt;</span>
+    <span class="tag">&lt;nav&gt;</span>Navigation<span class="tag">&lt;/nav&gt;</span>
+    <span class="tag">&lt;aside&gt;</span>Sidebar<span class="tag">&lt;/aside&gt;</span>
+  <span class="tag">&lt;/main&gt;</span>
+  <span class="tag">&lt;footer&gt;</span>Footer<span class="tag">&lt;/footer&gt;</span>
+<span class="tag">&lt;/body&gt;</span></pre>
 
       <div class="hint"><strong>Подсказка по медиазапросу:</strong> базовые стили пишутся для мобильного (столбик), а внутри <code>@media screen and (min-width: 600px) { ... }</code> переопределяется <code>main { flex-direction: row; }</code>. Это подход «mobile first» — сначала простой мобильный макет, потом усложнение для широких экранов.</div>
       <button class="done-btn final" onclick="markDone(5)">Завершить ✓</button>

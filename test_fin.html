@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тест по веб-вёрстке</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Segoe UI, Arial, sans-serif; background: #f4f5f7; color: #1a1a1a; min-height: 100vh; }
+
+    .page { max-width: 820px; margin: 0 auto; padding: 32px 16px 60px; }
+
+    .top-header { background: #1a1a2e; color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 20px; }
+    .top-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .top-header p { font-size: 14px; color: #aaa; }
+
+    .progress-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; position: sticky; top: 12px; z-index: 10; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: #475569; margin-bottom: 6px; }
+    .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #2563eb; border-radius: 3px; transition: width 0.3s ease; width: 0%; }
+
+    .question { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 22px; margin-bottom: 12px; transition: border-color 0.2s; }
+    .question.show-errors { border-color: #fca5a5; box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.08); }
+    .question.answered { border-color: #c7d2fe; }
+
+    .q-num { font-size: 12px; color: #94a3b8; font-weight: 600; margin-bottom: 6px; }
+    .q-text { font-size: 15px; font-weight: 600; margin-bottom: 12px; line-height: 1.5; }
+    code { background: #f1f5f9; color: #be123c; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; }
+
+    .options { display: flex; flex-direction: column; gap: 6px; }
+    .option { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-size: 14px; line-height: 1.5; }
+    .option:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .option input { margin-top: 3px; cursor: pointer; flex-shrink: 0; }
+
+    .submit-area { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px 24px; text-align: center; margin-top: 20px; }
+    .submit-btn { background: #2563eb; color: #fff; border: none; padding: 12px 32px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .submit-btn:hover { background: #1d4ed8; }
+
+    .warning { background: #fef9c3; border: 1px solid #fde047; padding: 12px 16px; border-radius: 6px; font-size: 13px; line-height: 1.5; margin-bottom: 14px; color: #713f12; }
+
+    .done-screen, .locked-screen { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 60px 32px; text-align: center; margin-top: 40px; }
+    .done-screen .icon, .locked-screen .icon { font-size: 56px; margin-bottom: 16px; }
+    .done-screen h2, .locked-screen h2 { font-size: 22px; margin-bottom: 12px; color: #1a1a2e; }
+    .done-screen p, .locked-screen p { font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+<div class="page" id="page"></div>
+
+<script>
+  // ===== Пул вопросов =====
+  var POOL = {
+    block: [
+      { q: 'Какое CSS-свойство задаёт обтекание блока другими элементами?',
+        options: ['float', 'clear', 'display', 'position'], correct: 0 },
+      { q: 'Какое значение свойства <code>clear</code> отменяет обтекание с обеих сторон?',
+        options: ['both', 'left', 'right', 'all'], correct: 0 },
+      { q: 'Какое значение <code>display</code> полностью убирает элемент со страницы (без занимаемого места)?',
+        options: ['none', 'hidden', 'invisible', 'block'], correct: 0 },
+      { q: 'Чем отличается <code>display: inline-block</code> от <code>display: block</code>?',
+        options: [
+          'элементы располагаются в строку и при этом могут иметь заданную ширину и высоту',
+          'inline-block нельзя задать ширину и высоту',
+          'inline-block всегда занимает всю ширину строки',
+          'между ними нет никакой разницы'
+        ], correct: 0 },
+      { q: 'Какое значение <code>position</code> позиционирует элемент относительно ближайшего предка с <code>position: relative</code>?',
+        options: ['absolute', 'fixed', 'static', 'float'], correct: 0 },
+      { q: 'В чём разница между <code>visibility: hidden</code> и <code>display: none</code>?',
+        options: [
+          'visibility: hidden скрывает элемент, но место под него остаётся',
+          'нет никакой разницы',
+          'display: none сохраняет место, а visibility: hidden — нет',
+          'visibility: hidden удаляет элемент из DOM'
+        ], correct: 0 },
+      { q: 'Какое значение <code>position</code> фиксирует элемент относительно окна браузера?',
+        options: ['fixed', 'absolute', 'relative', 'static'], correct: 0 },
+      { q: 'Какое CSS-свойство задаёт внутренний отступ (между содержимым и рамкой)?',
+        options: ['padding', 'margin', 'border', 'spacing'], correct: 0 },
+      { q: 'Какое CSS-свойство задаёт внешний отступ от элемента до соседних элементов?',
+        options: ['margin', 'padding', 'spacing', 'gap'], correct: 0 },
+      { q: 'Что делает свойство <code>box-sizing: border-box</code>?',
+        options: [
+          'padding и border включаются в заданную ширину/высоту элемента',
+          'убирает рамку у элемента',
+          'убирает внутренние отступы',
+          'делает блок строчным'
+        ], correct: 0 },
+      { q: 'Какое значение <code>float</code> отменяет обтекание (значение по умолчанию)?',
+        options: ['none', 'both', 'clear', 'static'], correct: 0 },
+      { q: 'Как сделать горизонтальное центрирование блочного элемента с заданной шириной?',
+        options: ['margin: 0 auto', 'text-align: center', 'float: center', 'position: center'], correct: 0 }
+    ],
+    transform: [
+      { q: 'Какая функция свойства <code>transform</code> поворачивает элемент на заданный угол?',
+        options: ['rotate()', 'turn()', 'spin()', 'angle()'], correct: 0 },
+      { q: 'Какое CSS-свойство задаёт точку, относительно которой выполняется преобразование?',
+        options: ['transform-origin', 'transform-center', 'origin', 'transform-point'], correct: 0 },
+      { q: 'С помощью какого правила задаются ключевые кадры анимации?',
+        options: ['@keyframes', '@animation', '@frames', '@sequence'], correct: 0 },
+      { q: 'Какое свойство задаёт продолжительность плавного перехода между состояниями?',
+        options: ['transition-duration', 'animation-time', 'transition-speed', 'duration'], correct: 0 },
+      { q: 'Какая функция свойства <code>transform</code> изменяет размер элемента?',
+        options: ['scale()', 'resize()', 'zoom()', 'size()'], correct: 0 },
+      { q: 'Какая функция свойства <code>transform</code> смещает элемент по осям?',
+        options: ['translate()', 'move()', 'shift()', 'offset()'], correct: 0 },
+      { q: 'Какая функция свойства <code>transform</code> наклоняет элемент?',
+        options: ['skew()', 'slant()', 'bend()', 'tilt()'], correct: 0 },
+      { q: 'Какое значение свойства <code>animation-iteration-count</code> задаёт бесконечное повторение?',
+        options: ['infinite', 'loop', 'repeat', 'forever'], correct: 0 },
+      { q: 'Какое значение <code>transition-timing-function</code> задаёт постоянную (линейную) скорость?',
+        options: ['linear', 'ease', 'step', 'smooth'], correct: 0 },
+      { q: 'В чём принципиальное отличие <code>animation</code> от <code>transition</code>?',
+        options: [
+          'animation работает с ключевыми кадрами и запускается сама, transition — только при изменении свойства',
+          'между ними нет никакой разницы',
+          'animation работает только с цветом, transition — со всем',
+          'transition работает только с трансформациями'
+        ], correct: 0 },
+      { q: 'Какое свойство задаёт задержку перед запуском анимации?',
+        options: ['animation-delay', 'animation-start', 'animation-wait', 'delay'], correct: 0 },
+      { q: 'Какое значение свойства <code>transform-origin</code> используется по умолчанию?',
+        options: ['50% 50% (центр элемента)', '0 0 (левый верхний угол)', '100% 100% (правый нижний угол)', 'auto'], correct: 0 }
+    ],
+    grid: [
+      { q: 'Какое значение свойства <code>display</code> превращает элемент в grid-контейнер?',
+        options: ['grid', 'flex', 'table', 'block'], correct: 0 },
+      { q: 'Что означает единица <code>fr</code> в свойствах сетки?',
+        options: ['доля свободного пространства', 'фиксированный размер в пикселях', 'размер шрифта', 'процент от высоты окна'], correct: 0 },
+      { q: 'Какое CSS-свойство задаёт промежутки между ячейками сетки?',
+        options: ['gap', 'margin', 'padding', 'spacing'], correct: 0 },
+      { q: 'Что делает запись <code>grid-column: 1 / span 2</code>?',
+        options: [
+          'элемент занимает 2 ячейки начиная с линии 1',
+          'элемент занимает 1 ячейку в столбце под номером 2',
+          'элемент сдвигается на 2 позиции вправо',
+          'элемент дублируется в столбце 2'
+        ], correct: 0 },
+      { q: 'Что задаёт свойство <code>grid-template-areas</code>?',
+        options: ['именованные области сетки', 'количество ячеек в сетке', 'размер ячеек', 'выравнивание элементов'], correct: 0 },
+      { q: 'Что делает функция <code>repeat(3, 100px)</code>?',
+        options: [
+          'создаёт 3 столбца/строки по 100px',
+          'повторяет один элемент 3 раза',
+          'создаёт сетку 3 на 100',
+          'задаёт минимум 3 ячейки шириной 100px'
+        ], correct: 0 },
+      { q: 'Какая запись правильно создаёт 4 равных столбца?',
+        options: [
+          'grid-template-columns: repeat(4, 1fr)',
+          'grid-columns: 4 * 1fr',
+          'grid-template: 4 columns',
+          'columns: 4 1fr'
+        ], correct: 0 },
+      { q: 'Что означает запись <code>grid-area: 1 / 2 / 3 / 4</code>?',
+        options: [
+          'row-start / column-start / row-end / column-end',
+          'column-start / row-start / column-end / row-end',
+          'координаты центра ячейки',
+          'размеры ячейки в условных единицах'
+        ], correct: 0 },
+      { q: 'Какой символ используется в <code>grid-template-areas</code>, чтобы оставить ячейку пустой?',
+        options: ['точка <code>.</code>', 'пробел', 'слово <code>empty</code>', 'знак <code>-</code>'], correct: 0 },
+      { q: 'Сколько вертикальных линий у grid из 4 столбцов?',
+        options: ['5', '4', '3', '8'], correct: 0 },
+      { q: 'Какое свойство задаёт промежуток только между строками сетки?',
+        options: ['row-gap', 'row-margin', 'between-rows', 'vertical-spacing'], correct: 0 },
+      { q: 'Что делает свойство <code>grid-auto-flow: column</code>?',
+        options: [
+          'размещает элементы автоматически по столбцам',
+          'автоматически создаёт все столбцы одинаковой ширины',
+          'удаляет лишние столбцы',
+          'выравнивает столбцы по правому краю'
+        ], correct: 0 }
+    ],
+    flex: [
+      { q: 'На какие элементы действует свойство <code>order</code>?',
+        options: [
+          'на flex-элементы (прямых детей flex-контейнера)',
+          'на сам flex-контейнер',
+          'на любые блочные элементы страницы',
+          'на родителя flex-контейнера'
+        ], correct: 0 },
+      { q: 'По какой оси работает свойство <code>justify-content</code>?',
+        options: ['по главной (main axis)', 'по поперечной (cross axis)', 'по диагонали', 'по обеим одновременно'], correct: 0 },
+      { q: 'Чему эквивалентна короткая запись <code>flex: none</code>?',
+        options: ['0 0 auto', '1 1 auto', '0 1 auto', '1 0 auto'], correct: 0 },
+      { q: 'Какое свойство переопределяет <code>align-items</code> для одного конкретного блока?',
+        options: ['align-self', 'align-content', 'justify-self', 'self-align'], correct: 0 },
+      { q: 'Какое значение <code>flex-direction</code> располагает элементы в столбик сверху вниз?',
+        options: ['column', 'row', 'vertical', 'stack'], correct: 0 },
+      { q: 'Что делает свойство <code>flex-wrap: wrap</code>?',
+        options: [
+          'переносит элементы на новую строку, если они не помещаются',
+          'убирает переносы строк',
+          'растягивает контейнер по ширине',
+          'выравнивает элементы по краям'
+        ], correct: 0 },
+      { q: 'Какое значение <code>align-items</code> используется по умолчанию?',
+        options: ['stretch', 'center', 'flex-start', 'baseline'], correct: 0 },
+      { q: 'Что задаёт свойство <code>flex-grow</code>?',
+        options: [
+          'насколько блок растягивается, если в контейнере есть свободное место',
+          'минимальный размер блока',
+          'максимальный размер блока',
+          'расстояние между блоками'
+        ], correct: 0 },
+      { q: 'Что задаёт свойство <code>flex-shrink</code>?',
+        options: [
+          'насколько блок сжимается, если места в контейнере не хватает',
+          'насколько блок растягивается',
+          'минимальную ширину',
+          'максимальную ширину'
+        ], correct: 0 },
+      { q: 'В каком порядке идут значения в шорткате <code>flex</code>?',
+        options: ['grow shrink basis', 'basis grow shrink', 'shrink grow basis', 'direction wrap grow'], correct: 0 },
+      { q: 'Что делает <code>display: inline-flex</code>?',
+        options: [
+          'создаёт flex-контейнер, который ведёт себя как строчный элемент',
+          'делает то же самое, что и display: flex',
+          'отключает flexbox',
+          'делает всех детей строчными'
+        ], correct: 0 },
+      { q: 'Что делает значение <code>space-between</code> у свойства <code>justify-content</code>?',
+        options: [
+          'крайние элементы прижимаются к краям, между остальными равные промежутки',
+          'все элементы имеют равные отступы со всех сторон',
+          'убирает все промежутки между элементами',
+          'центрирует все элементы внутри контейнера'
+        ], correct: 0 }
+    ]
+  };
+
+  var PER_TOPIC = 8;
+  var STORAGE_KEY = 'webdev_quiz_v2';
+  var TOPIC_NAMES = {
+    block:     'Блочная вёрстка',
+    transform: 'Трансформации/анимации',
+    grid:      'Grid',
+    flex:      'Flexbox'
+  };
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function buildQuestionSet() {
+    var picked = [];
+    Object.keys(POOL).forEach(function (topic) {
+      shuffle(POOL[topic]).slice(0, PER_TOPIC).forEach(function (q) {
+        picked.push({ topic: topic, src: q });
+      });
+    });
+    picked = shuffle(picked);
+    return picked.map(function (item) {
+      var correctText = item.src.options[item.src.correct];
+      var opts = shuffle(item.src.options);
+      return {
+        topic: item.topic,
+        q: item.src.q,
+        options: opts,
+        correct: opts.indexOf(correctText)
+      };
+    });
+  }
+
+  function loadResult() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function saveResult(data) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function gradeFor(score, total) {
+    var pct = score / total;
+    if (pct >= 0.9) return { grade: 5, label: 'отлично' };
+    if (pct >= 0.75) return { grade: 4, label: 'хорошо' };
+    if (pct >= 0.5) return { grade: 3, label: 'удовлетворительно' };
+    return { grade: 2, label: 'неудовлетворительно' };
+  }
+
+  function renderLocked() {
+    document.getElementById('page').innerHTML =
+      '<div class="locked-screen">' +
+        '<div class="icon">🔒</div>' +
+        '<h2>Тест уже пройден</h2>' +
+        '<p>Этот тест можно пройти только один раз.</p>' +
+        '<p>Передайте устройство преподавателю.</p>' +
+      '</div>';
+  }
+
+  function renderDone() {
+    document.getElementById('page').innerHTML =
+      '<div class="done-screen">' +
+        '<div class="icon">✓</div>' +
+        '<h2>Тест завершён</h2>' +
+        '<p>Спасибо! Ответы зафиксированы.</p>' +
+        '<p>Передайте устройство преподавателю.</p>' +
+      '</div>';
+  }
+
+  var QUESTIONS = null;
+
+  function renderQuiz() {
+    QUESTIONS = buildQuestionSet();
+    var total = QUESTIONS.length;
+    var html = '';
+    html += '<div class="top-header"><h1>Тест по веб-вёрстке</h1>';
+    html += '<p>' + total + ' вопросов &nbsp;|&nbsp; пройти можно один раз</p></div>';
+
+    html += '<div class="progress-wrap">';
+    html += '<div class="progress-info"><span id="progText">Отвечено: 0 из ' + total + '</span><span id="progPct">0%</span></div>';
+    html += '<div class="progress-bar"><div class="progress-fill" id="progFill"></div></div></div>';
+
+    html += '<div class="warning"><strong>Внимание:</strong> тест можно пройти <strong>только один раз</strong>. После нажатия «Завершить тест» изменить ответы будет нельзя. Отвечайте внимательно.</div>';
+
+    QUESTIONS.forEach(function (q, i) {
+      html += '<div class="question" id="q' + i + '">';
+      html += '<div class="q-num">Вопрос ' + (i + 1) + ' из ' + total + '</div>';
+      html += '<div class="q-text">' + q.q + '</div>';
+      html += '<div class="options">';
+      q.options.forEach(function (opt, oi) {
+        html += '<label class="option"><input type="radio" name="q' + i + '" value="' + oi + '" data-qi="' + i + '"><span>' + opt + '</span></label>';
+      });
+      html += '</div></div>';
+    });
+
+    html += '<div class="submit-area"><button class="submit-btn" id="submitBtn">Завершить тест</button></div>';
+
+    document.getElementById('page').innerHTML = html;
+
+    document.querySelectorAll('input[type=radio]').forEach(function (input) {
+      input.addEventListener('change', function () {
+        var qi = parseInt(this.dataset.qi, 10);
+        document.getElementById('q' + qi).classList.add('answered');
+        document.getElementById('q' + qi).classList.remove('show-errors');
+        updateProgress();
+      });
+    });
+    document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+  }
+
+  function updateProgress() {
+    var total = QUESTIONS.length, answered = 0;
+    for (var i = 0; i < total; i++) {
+      if (document.querySelector('input[name="q' + i + '"]:checked')) answered++;
+    }
+    var pct = Math.round((answered / total) * 100);
+    document.getElementById('progText').innerText = 'Отвечено: ' + answered + ' из ' + total;
+    document.getElementById('progPct').innerText = pct + '%';
+    document.getElementById('progFill').style.width = pct + '%';
+  }
+
+  function submitQuiz() {
+    var total = QUESTIONS.length;
+    var unanswered = [];
+    for (var i = 0; i < total; i++) {
+      if (!document.querySelector('input[name="q' + i + '"]:checked')) unanswered.push(i);
+    }
+    if (unanswered.length > 0) {
+      document.querySelectorAll('.question').forEach(function (el) { el.classList.remove('show-errors'); });
+      unanswered.forEach(function (i) { document.getElementById('q' + i).classList.add('show-errors'); });
+      document.getElementById('q' + unanswered[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      alert('Не отвечено вопросов: ' + unanswered.length + '. Прокрутите к подсвеченным.');
+      return;
+    }
+    if (!confirm('Завершить тест и зафиксировать ответы? Повторно пройти тест будет нельзя.')) return;
+
+    var score = 0;
+    var byTopic = { block: { right: 0, total: 0 }, transform: { right: 0, total: 0 }, grid: { right: 0, total: 0 }, flex: { right: 0, total: 0 } };
+    QUESTIONS.forEach(function (q, i) {
+      var picked = parseInt(document.querySelector('input[name="q' + i + '"]:checked').value, 10);
+      byTopic[q.topic].total++;
+      if (picked === q.correct) { score++; byTopic[q.topic].right++; }
+    });
+
+    saveResult({ score: score, total: total, byTopic: byTopic, date: new Date().toISOString() });
+    renderDone();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Точка входа
+  var prev = loadResult();
+  if (prev) renderLocked(); else renderQuiz();
+
+  // ===== Доступ к результату через консоль =====
+  window.showResult = function () {
+    var data = loadResult();
+    if (!data) {
+      console.log('%cРезультат отсутствует — тест ещё не пройден.', 'color: #94a3b8; font-size: 13px;');
+      return null;
+    }
+    var g = gradeFor(data.score, data.total);
+    var pct = Math.round((data.score / data.total) * 100);
+    var dateStr = new Date(data.date).toLocaleString('ru-RU');
+    console.log('%c═══ Результат теста ═══', 'color: #2563eb; font-size: 16px; font-weight: bold;');
+    console.log('%cБалл: ' + data.score + ' / ' + data.total + ' (' + pct + '%)', 'font-size: 14px;');
+    console.log('%cОценка: ' + g.grade + ' (' + g.label + ')', 'font-size: 14px; font-weight: bold; color: ' + (g.grade >= 4 ? '#16a34a' : (g.grade <= 2 ? '#dc2626' : '#2563eb')) + ';');
+    console.log('%cДата: ' + dateStr, 'color: #64748b; font-size: 12px;');
+    console.log('%c── По темам ──', 'color: #64748b; font-size: 12px;');
+    Object.keys(data.byTopic).forEach(function (t) {
+      var bt = data.byTopic[t];
+      console.log('  ' + TOPIC_NAMES[t] + ': ' + bt.right + ' / ' + bt.total);
+    });
+    return data;
+  };
+
+  window.resetTest = function () {
+    if (!confirm('Удалить результат и разрешить пройти заново?')) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    console.log('%cРезультат сброшен. Перезагрузите страницу.', 'color: #16a34a;');
+  };
+</script>
+</body>
+</html>
